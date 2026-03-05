@@ -250,10 +250,10 @@ const clearFilters = (targetFilters) => {
 <style scoped>
 .home {
   min-height: calc(100vh - 76px);
-  display: grid;
-  place-items: center;
+  display: block;
   background: #f5f7fb;
   padding: 24px;
+  overflow-x: hidden;
 }
 
 .page {
@@ -263,6 +263,7 @@ const clearFilters = (targetFilters) => {
 
 .card {
   width: min(1200px, 100%);
+  margin: 0 auto;
   background: #ffffff;
   border: 1px solid #e6eaf2;
   border-radius: 12px;
