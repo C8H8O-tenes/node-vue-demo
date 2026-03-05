@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # AREK deployment script with GitHub sync.
 # Deploys to path-prefix /AREK/ and keeps RMzyme routes untouched.
