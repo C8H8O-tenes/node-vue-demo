@@ -7,7 +7,6 @@ export const PUBLIC_BASE_URL = config.PUBLIC_BASE_URL;
 
 export const API_ENDPOINTS = {
   TEST_PING: '/test_ping',
-  TEST_DB: '/test-db',
   SUMMARY_FILTER_OPTIONS: '/query/summary-filter-options',
   SUMMARY_DETAIL_TABLE: '/query/summary-detail-table'
 };

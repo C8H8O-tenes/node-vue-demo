@@ -16,7 +16,7 @@ const SERVER_CONFIG = {
 
 const DATABASE_CONFIG = {
   HOST: process.env.DB_HOST || 'localhost',
-  USER: process.env.DB_USER || 'AREKdb',
+  USER: process.env.DB_USER || 'arek',
   PASSWORD: process.env.DB_PASSWORD || 'Arek@123456',
   DATABASE: process.env.DB_NAME || 'AREKdb',
   CONNECTION_LIMIT: process.env.DB_CONNECTION_LIMIT || 10

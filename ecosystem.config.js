@@ -13,7 +13,7 @@
       PORT: 8081,
       PUBLIC_URL: 'https://rh-luo.cn/AREK',
       DB_HOST: 'localhost',
-      DB_USER: 'AREKdb',
+      DB_USER: 'arek',
       DB_PASSWORD: 'Arek@123456',
       DB_NAME: 'AREKdb',
       DB_CONNECTION_LIMIT: 10
