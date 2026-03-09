@@ -1,22 +1,27 @@
 <template>
-  <main class="wrap">
-    <section class="card">
-      <h1>AREK Result (Debug)</h1>
-      <p class="muted">Current page only shows the search content passed from HomePage.</p>
+  <div class="page">
+    <topleader />
 
-      <div class="row"><span class="k">Keyword</span><span class="v">{{ q.keyword || '(empty)' }}</span></div>
-      <div class="row"><span class="k">AREK Study Nr.</span><span class="v">{{ q.studyNr || '(all)' }}</span></div>
-      <div class="row"><span class="k">Study subject</span><span class="v">{{ q.subject || '(all)' }}</span></div>
-      <div class="row"><span class="k">Sample type</span><span class="v">{{ q.sampleType || '(all)' }}</span></div>
+    <main class="wrap">
+      <section class="card">
+        <h1>AREK Result (Debug)</h1>
+        <p class="muted">Current page only shows the search content passed from HomePage.</p>
 
-      <router-link to="/homepage" class="back">Back to HomePage</router-link>
-    </section>
-  </main>
+        <div class="row"><span class="k">Keyword</span><span class="v">{{ q.keyword || '(empty)' }}</span></div>
+        <div class="row"><span class="k">AREK Study Nr.</span><span class="v">{{ q.studyNr || '(all)' }}</span></div>
+        <div class="row"><span class="k">Study subject</span><span class="v">{{ q.subject || '(all)' }}</span></div>
+        <div class="row"><span class="k">Sample type</span><span class="v">{{ q.sampleType || '(all)' }}</span></div>
+
+        <router-link to="/homepage" class="back">Back to HomePage</router-link>
+      </section>
+    </main>
+  </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import topleader from '@/components/topleader.vue';
 
 const route = useRoute();
 
@@ -29,8 +34,13 @@ const q = computed(() => ({
 </script>
 
 <style scoped>
-.wrap {
+.page {
   min-height: 100vh;
+  background: #d8dde3;
+}
+
+.wrap {
+  min-height: calc(100vh - 76px);
   background: #f5f7fb;
   padding: 24px;
 }
