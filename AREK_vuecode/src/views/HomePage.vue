@@ -186,6 +186,7 @@ import { apiRequest } from '@/utils/api';
 import topleader from '@/components/topleader.vue';
 
 const router = useRouter();
+const homepageIcon = (fileName) => `${process.env.BASE_URL}homepage-icons/${fileName}`;
 const message = ref('');
 const messageType = ref('info');
 const resultText = ref('');
@@ -214,50 +215,50 @@ const studyNrOptions = ref([]);
 const subjectOptions = ref([]);
 const sampleTypeOptions = ref([]);
 const heroSteps = [
-  { title: 'Microbiome', image: '/homepage-icons/microbial-culture.png' },
-  { title: 'Mechanism', image: '/homepage-icons/mechanism.jpg' },
-  { title: 'Prediction', image: '/homepage-icons/monitor.png' }
+  { title: 'Microbiome', image: homepageIcon('microbial-culture.png') },
+  { title: 'Mechanism', image: homepageIcon('mechanism.jpg') },
+  { title: 'Prediction', image: homepageIcon('monitor.png') }
 ];
 const moduleCards = [
   {
     title: 'Datasets',
     description: 'Access curated datasets across studies',
-    image: '/homepage-icons/Datasets.png'
+    image: homepageIcon('Datasets.png')
   },
   {
     title: 'Enterotypes',
     description: 'Explore and define microbial enterotypes',
-    image: '/homepage-icons/Enterotypes.png'
+    image: homepageIcon('Enterotypes.png')
   },
   {
     title: 'Taxa',
     description: 'Analyze taxonomic composition and abundance',
-    image: '/homepage-icons/Taxa.png'
+    image: homepageIcon('Taxa.png')
   },
   {
     title: 'Functions',
     description: 'Investigate microbial functional capabilities',
-    image: '/homepage-icons/Functions.png'
+    image: homepageIcon('Functions.png')
   },
   {
     title: 'Networks',
     description: 'Visualize co-occurrence and interaction networks',
-    image: '/homepage-icons/networks.png'
+    image: homepageIcon('networks.png')
   },
   {
     title: 'Mechanism Links',
     description: 'Uncover associations with metabolic pathways',
-    image: '/homepage-icons/mechanism link.png'
+    image: homepageIcon('mechanism link.png')
   },
   {
     title: 'Prediction Leaderboard',
     description: 'Compare predictive models and performance',
-    image: '/homepage-icons/predictive-leaderborad.png'
+    image: homepageIcon('predictive-leaderborad.png')
   },
   {
     title: 'Top Features',
     description: 'Identify key biomarkers and predictive features',
-    image: '/homepage-icons/top features.png'
+    image: homepageIcon('top features.png')
   }
 ];
 

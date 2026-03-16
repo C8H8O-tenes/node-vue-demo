@@ -2,7 +2,7 @@
   <header class="top-shell">
     <div class="topbar">
       <RouterLink class="brand" :to="{ name: 'homepage' }">
-        <img class="brand-logo" src="/homepage-icons/AREK.png" alt="AREK" />
+        <img class="brand-logo" :src="brandLogo" alt="AREK" />
       </RouterLink>
 
       <nav class="nav" aria-label="Primary">
@@ -33,6 +33,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
+const brandLogo = `${process.env.BASE_URL}homepage-icons/AREK.png`;
 
 const items = [
   { label: 'Home', to: { name: 'homepage' } },
