@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# AREK deployment script with GitHub sync.
-# Deploys to path-prefix /AREK/ and keeps RMzyme routes untouched.
+# AREK deployment script.
+# Assumes the repository has already been updated manually in /data/vue_AREK.
 
 set -e
 
@@ -20,8 +20,6 @@ PROD_DIR="/data/AREK_PROD"
 NGINX_CONFIG_SOURCE="$PROJECT_DIR/rh-luo.cn.arek.conf"
 NGINX_CONFIG_DEST="/etc/nginx/snippets/rh-luo.cn-arek-paths.conf"
 PM2_APP_NAME="arek-backend"
-GIT_REPO="${GIT_REPO:-https://github.com/C8H8O-tenes/node-vue-demo.git}"
-GIT_BRANCH="${GIT_BRANCH:-main}"
 
 print_status() { echo -e "${BLUE}[INFO]${NC} $1"; }
 print_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
@@ -30,40 +28,25 @@ print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 
 print_status "Checking prerequisites..."
-if ! command_exists git; then
-  print_error "git is not installed"
-  exit 1
-fi
 if ! command_exists pm2; then
   print_error "pm2 is not installed"
   exit 1
 fi
 print_success "Basic prerequisites check passed"
 
-# Step 1: Sync source from GitHub
-print_status "Syncing source from GitHub..."
-if [ ! -d "$PROJECT_DIR/.git" ]; then
-  sudo mkdir -p "$(dirname "$PROJECT_DIR")"
-  if [ -d "$PROJECT_DIR" ] && [ "$(ls -A "$PROJECT_DIR" 2>/dev/null)" ]; then
-    print_error "Project directory exists and is not empty: $PROJECT_DIR"
-    print_error "Please clean it first or use another path."
-    exit 1
-  fi
-  sudo rm -rf "$PROJECT_DIR"
-  sudo git clone -b "$GIT_BRANCH" "$GIT_REPO" "$PROJECT_DIR"
-else
-  cd "$PROJECT_DIR"
-  if [ -n "$(git status --porcelain)" ]; then
-    print_error "Local changes detected in $PROJECT_DIR. Commit/stash before deploy."
-    exit 1
-  fi
-  sudo git fetch origin
-  sudo git checkout "$GIT_BRANCH"
-  sudo git pull --ff-only origin "$GIT_BRANCH"
+print_status "Checking project directories..."
+if [ ! -d "$PROJECT_DIR" ]; then
+  print_error "Project directory not found: $PROJECT_DIR"
+  print_error "Update the repo manually first, then rerun this script."
+  exit 1
 fi
-print_success "Source synced: $GIT_REPO ($GIT_BRANCH)"
+if [ ! -d "$FRONTEND_DIR" ] && [ ! -d "$BACKEND_DIR" ]; then
+  print_error "Neither frontend nor backend directory exists under $PROJECT_DIR"
+  exit 1
+fi
+print_success "Project directory check passed"
 
-# Step 2: Build frontend and deploy dist
+# Step 1: Build frontend and deploy dist
 if [ -d "$FRONTEND_DIR" ] && [ -f "$FRONTEND_DIR/package.json" ]; then
   print_status "Building frontend..."
   cd "$FRONTEND_DIR"
@@ -79,7 +62,7 @@ else
   print_warning "Frontend not ready, skipping build/deploy"
 fi
 
-# Step 3: Update nginx snippet
+# Step 2: Update nginx snippet
 if [ -f "$NGINX_CONFIG_SOURCE" ]; then
   print_status "Installing nginx snippet..."
   sudo mkdir -p /etc/nginx/snippets
@@ -92,7 +75,7 @@ else
   print_warning "Nginx config source not found: $NGINX_CONFIG_SOURCE"
 fi
 
-# Step 4: Restart backend via PM2
+# Step 3: Restart backend via PM2
 if [ -d "$BACKEND_DIR" ] && [ -f "$PROJECT_DIR/ecosystem.config.js" ]; then
   print_status "Restarting backend with PM2..."
   cd "$PROJECT_DIR"
@@ -104,7 +87,7 @@ else
   print_warning "Backend not ready, skipping PM2 start"
 fi
 
-# Step 5: Reload nginx
+# Step 4: Reload nginx
 if command_exists nginx; then
   print_status "Reloading nginx..."
   sudo systemctl reload nginx
