@@ -6,7 +6,10 @@
       <section class="card">
         <section class="welcome-panel">
           <div class="welcome-left">
-            <h1 class="welcome-title">Welcome to AREK</h1>
+            <h1 class="welcome-title">
+              <span class="welcome-title-main">Welcome to</span>
+              <span class="welcome-title-brand">AREK</span>
+            </h1>
             <p class="welcome-subtitle">Alcohol-related Enterotypes Knowledgebase</p>
             <ul class="welcome-list">
               <li>Query enterotypes across alcohol model studies</li>
@@ -14,7 +17,15 @@
               <li>Browse precomputed prediction results and key features</li>
             </ul>
           </div>
-          <div class="welcome-right" aria-hidden="true"></div>
+          <div class="welcome-right" aria-label="AREK overview workflow">
+            <div v-for="(item, index) in heroSteps" :key="item.title" class="hero-step">
+              <div class="hero-icon-wrap">
+                <img class="hero-icon" :src="item.image" :alt="item.title" />
+              </div>
+              <span class="hero-label">{{ item.title }}</span>
+              <span v-if="index < heroSteps.length - 1" class="hero-arrow" aria-hidden="true">&rarr;</span>
+            </div>
+          </div>
         </section>
 
         <div class="search-panel">
@@ -120,8 +131,18 @@
 
         <h2 class="section-title">Browse by Modules</h2>
         <div class="module-grid">
-          <button v-for="index in 8" :key="`module-${index}`" type="button" class="module-card">
-            module{{ index }}
+          <button
+            v-for="module in moduleCards"
+            :key="module.title"
+            type="button"
+            class="module-card"
+          >
+            <img class="module-icon" :src="module.image" :alt="module.title" />
+            <div class="module-copy">
+              <h3>{{ module.title }}</h3>
+              <p>{{ module.description }}</p>
+            </div>
+            <span class="module-arrow" aria-hidden="true">&rsaquo;</span>
           </button>
         </div>
 
@@ -192,6 +213,53 @@ const filtersOutcome = ref({
 const studyNrOptions = ref([]);
 const subjectOptions = ref([]);
 const sampleTypeOptions = ref([]);
+const heroSteps = [
+  { title: 'Microbiome', image: '/homepage-icons/microbial-culture.png' },
+  { title: 'Mechanism', image: '/homepage-icons/mechanism.jpg' },
+  { title: 'Prediction', image: '/homepage-icons/monitor.png' }
+];
+const moduleCards = [
+  {
+    title: 'Datasets',
+    description: 'Access curated datasets across studies',
+    image: '/homepage-icons/Datasets.png'
+  },
+  {
+    title: 'Enterotypes',
+    description: 'Explore and define microbial enterotypes',
+    image: '/homepage-icons/Enterotypes.png'
+  },
+  {
+    title: 'Taxa',
+    description: 'Analyze taxonomic composition and abundance',
+    image: '/homepage-icons/Taxa.png'
+  },
+  {
+    title: 'Functions',
+    description: 'Investigate microbial functional capabilities',
+    image: '/homepage-icons/Functions.png'
+  },
+  {
+    title: 'Networks',
+    description: 'Visualize co-occurrence and interaction networks',
+    image: '/homepage-icons/networks.png'
+  },
+  {
+    title: 'Mechanism Links',
+    description: 'Uncover associations with metabolic pathways',
+    image: '/homepage-icons/mechanism link.png'
+  },
+  {
+    title: 'Prediction Leaderboard',
+    description: 'Compare predictive models and performance',
+    image: '/homepage-icons/predictive-leaderborad.png'
+  },
+  {
+    title: 'Top Features',
+    description: 'Identify key biomarkers and predictive features',
+    image: '/homepage-icons/top features.png'
+  }
+];
 
 const setResult = (type, text, payload) => {
   messageType.value = type;
@@ -254,6 +322,7 @@ const clearFilters = (targetFilters) => {
   background: #f5f7fb;
   padding: 24px;
   overflow-x: hidden;
+  font-family: var(--arek-font);
 }
 
 .page {
@@ -265,12 +334,11 @@ const clearFilters = (targetFilters) => {
   width: min(1200px, 100%);
   margin: 0 auto;
   background: #ffffff;
-  border: 1px solid #e6eaf2;
+  border: 1px solid var(--arek-border);
   border-radius: 12px;
   padding: 32px;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
   text-align: left;
-  font-family: 'Times New Roman', Times, serif;
 }
 
 .welcome-panel {
@@ -284,30 +352,87 @@ const clearFilters = (targetFilters) => {
 
 .welcome-title {
   margin: 0;
-  color: #0f2f57;
   font-size: 44px;
   line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.welcome-title-main {
+  color: var(--arek-blue-deep);
+}
+
+.welcome-title-brand {
+  color: var(--arek-blue);
+  margin-left: 0.18em;
 }
 
 .welcome-subtitle {
   margin: 8px 0 0;
-  color: #374151;
+  color: var(--arek-text-strong);
   font-size: 20px;
+  font-weight: 500;
 }
 
 .welcome-list {
   margin: 12px 0 0;
   padding-left: 18px;
-  color: #1f2937;
+  color: var(--arek-text-body);
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.7;
+  font-weight: 500;
 }
 
 .welcome-right {
-  min-height: 150px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 12px;
-  background: #f8fafc;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top, rgba(18, 150, 216, 0.16), transparent 42%),
+    linear-gradient(180deg, #ffffff 0%, #eef4fb 100%);
+  padding: 18px;
+}
+
+.hero-step {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+
+.hero-icon-wrap {
+  width: 128px;
+  height: 128px;
+  border-radius: 999px;
+  border: 6px solid var(--arek-blue-soft);
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(18, 150, 216, 0.18);
+  display: grid;
+  place-items: center;
+}
+
+.hero-icon {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+}
+
+.hero-label {
+  color: var(--arek-text-strong);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.hero-arrow {
+  position: absolute;
+  right: -26px;
+  top: 46px;
+  color: var(--arek-text-muted);
+  font-size: 44px;
+  line-height: 1;
 }
 
 .search-grid {
@@ -319,11 +444,10 @@ const clearFilters = (targetFilters) => {
 
 .search-panel {
   margin-top: 14px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--arek-border);
   border-radius: 10px;
   background: #f8fafc;
   padding: 10px 12px;
-  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
 }
 
 .search-panel .search-grid {
@@ -331,15 +455,15 @@ const clearFilters = (targetFilters) => {
 }
 
 .search-panel .search-grid + .search-grid {
-  border-top: 1px solid #d1d5db;
+  border-top: 1px solid var(--arek-border);
 }
 
 .view-title {
   text-align: left;
   font-size: 20px;
   line-height: 1;
-  font-weight: 600;
-  color: #111827;
+  font-weight: 700;
+  color: var(--arek-text-strong);
   align-self: center;
 }
 
@@ -350,19 +474,19 @@ const clearFilters = (targetFilters) => {
 }
 
 .field-label {
-  color: #4b5563;
+  color: var(--arek-text-muted);
   font-size: 13px;
   font-weight: 600;
 }
 
 .field-input {
   width: 100%;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--arek-border);
   background: #fff;
   border-radius: 8px;
   padding: 10px 12px;
   font-size: 14px;
-  color: #111827;
+  color: var(--arek-text-strong);
 }
 
 .search-actions {
@@ -372,8 +496,8 @@ const clearFilters = (targetFilters) => {
 }
 
 .go-btn {
-  border: 1px solid #1d4ed8;
-  background: #2563eb;
+  border: 1px solid var(--arek-blue);
+  background: var(--arek-blue);
   color: #fff;
   padding: 10px 20px;
   border-radius: 8px;
@@ -383,13 +507,13 @@ const clearFilters = (targetFilters) => {
 }
 
 .go-btn:hover {
-  background: #1d4ed8;
+  background: var(--arek-blue-deep);
 }
 
 .clear-btn {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--arek-border);
   background: #fff;
-  color: #374151;
+  color: var(--arek-text-body);
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
@@ -408,24 +532,56 @@ const clearFilters = (targetFilters) => {
 }
 
 .module-card {
-  min-height: 88px;
-  border: 1px solid #d1d5db;
+  min-height: 102px;
+  border: 1px solid var(--arek-border);
   border-radius: 10px;
   background: #ffffff;
-  color: #111827;
-  font-size: 18px;
-  font-weight: 600;
-  text-transform: capitalize;
+  color: var(--arek-text-strong);
   cursor: pointer;
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  text-align: left;
+  padding: 16px 18px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 
 .module-card:hover {
-  background: #f3f4f6;
+  background: #f8fbff;
+  border-color: var(--arek-blue-soft);
+}
+
+.module-icon {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
+.module-copy h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  color: var(--arek-text-strong);
+  font-weight: 700;
+}
+
+.module-copy p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--arek-text-body);
+  font-weight: 500;
+}
+
+.module-arrow {
+  color: var(--arek-text-muted);
+  font-size: 28px;
+  line-height: 1;
 }
 
 .section-title {
   margin: 24px 0 10px;
-  color: #111827;
+  color: var(--arek-text-strong);
   font-size: 18px;
   font-weight: 700;
 }
@@ -438,7 +594,7 @@ const clearFilters = (targetFilters) => {
 }
 
 .news-card {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--arek-border);
   border-radius: 10px;
   background: #ffffff;
   padding: 12px 14px;
@@ -447,13 +603,15 @@ const clearFilters = (targetFilters) => {
 .news-card h3 {
   margin: 0 0 8px;
   font-size: 15px;
-  color: #111827;
+  color: var(--arek-text-strong);
+  font-weight: 700;
 }
 
 .news-card p {
   margin: 6px 0;
   font-size: 13px;
-  color: #374151;
+  color: var(--arek-text-body);
+  font-weight: 500;
 }
 
 .message {
@@ -508,6 +666,17 @@ const clearFilters = (targetFilters) => {
 
   .search-grid {
     grid-template-columns: 1fr;
+  }
+
+  .welcome-right {
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .hero-arrow {
+    position: static;
+    transform: rotate(90deg);
+    margin-top: -6px;
   }
 
   .view-title {

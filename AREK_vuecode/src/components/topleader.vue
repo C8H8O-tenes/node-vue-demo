@@ -2,8 +2,7 @@
   <header class="top-shell">
     <div class="topbar">
       <RouterLink class="brand" :to="{ name: 'homepage' }">
-        <div class="brand-mark" aria-hidden="true">A</div>
-        <span class="brand-text">AREK</span>
+        <img class="brand-logo" src="/homepage-icons/AREK.png" alt="AREK" />
       </RouterLink>
 
       <nav class="nav" aria-label="Primary">
@@ -55,12 +54,13 @@ const goContact = () => {
 .top-shell {
   background: #d8dde3;
   padding: 14px 14px 0;
+  font-family: var(--arek-font);
 }
 
 .topbar {
   height: 72px;
   background: #fff;
-  border-bottom: 1px solid #d9dee7;
+  border-bottom: 1px solid var(--arek-border);
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -72,29 +72,14 @@ const goContact = () => {
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
   min-width: 140px;
   text-decoration: none;
 }
 
-.brand-mark {
-  width: 32px;
-  height: 32px;
-  border: 2px solid #5f84a7;
-  color: #5f84a7;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.brand-text {
-  font-size: 27px;
-  font-weight: 700;
-  color: #0f3f76;
-  letter-spacing: 0.5px;
+.brand-logo {
+  height: 52px;
+  width: auto;
+  display: block;
 }
 
 .nav {
@@ -106,17 +91,18 @@ const goContact = () => {
 
 .nav-link {
   position: relative;
-  color: #1f2937;
+  color: var(--arek-text-strong);
   text-decoration: none;
   font-size: 16px;
+  font-weight: 600;
   line-height: 72px;
   white-space: nowrap;
   padding: 0 2px;
 }
 
 .nav-link.active {
-  color: #1f4f88;
-  font-weight: 600;
+  color: var(--arek-blue);
+  font-weight: 700;
 }
 
 .nav-link.active::after {
@@ -127,7 +113,7 @@ const goContact = () => {
   bottom: 0;
   height: 3px;
   border-radius: 2px 2px 0 0;
-  background: #2f8ddb;
+  background: var(--arek-blue-soft);
 }
 
 .nav-link.disabled {
@@ -138,7 +124,7 @@ const goContact = () => {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  border: 2px solid #7f97ae;
+  border: 2px solid var(--arek-blue-soft);
   background: #f8fafc;
   display: grid;
   place-items: center;
@@ -149,7 +135,7 @@ const goContact = () => {
 .avatar-inner {
   font-size: 21px;
   line-height: 1;
-  color: #35516f;
+  color: var(--arek-blue-deep);
 }
 
 @media (max-width: 1100px) {
