@@ -1,0 +1,2 @@
+dataset	source_project	tax_level	n_samples	n_taxa	primary_group_variable	primary_group_counts	qc	descriptive_diversity	comparative_diversity	differential_comparison	alcohol_or_within_cohort_regression	correlation	other_metadata_association	notes
+PRJNA255332	PRJNA255332	Genus	24	13	Primary_group	Alcohol_user=18;Non_alcohol_user=6	done	done	done	done	done	done	done	User-confirmed metadata correction: Alcohol_days_per_week value 289.1 was corrected to 2.0.

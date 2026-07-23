@@ -36,9 +36,14 @@
                     {{ row[header] ?? '' }}
                   </td>
                   <td>
-                    <router-link :to="buildResultRoute(row)" class="detail-btn">
+                    <router-link
+                      v-if="getDatasetId(row)"
+                      :to="buildResultRoute(row)"
+                      class="detail-btn"
+                    >
                       detail
                     </router-link>
+                    <span v-else class="missing-link">No PRJ ID</span>
                   </td>
                 </tr>
               </tbody>
@@ -76,6 +81,9 @@ const normalize = (value) => (value ?? '').toString().trim();
 
 const studyNrHeader = computed(() => headers.value[0] || '');
 const subjectHeader = computed(() => headers.value[1] || '');
+const studyIdHeader = computed(() =>
+  headers.value.find((h) => normalize(h).toLowerCase() === 'study id') || ''
+);
 const sampleTypeHeader = computed(() =>
   headers.value.find((h) => normalize(h).toLowerCase().includes('sample type')) || headers.value[2] || ''
 );
@@ -86,8 +94,19 @@ const buildQueryFromRow = (row) => ({
   sampleType: normalize(row[sampleTypeHeader.value]) || undefined
 });
 
+const getDatasetId = (row) => {
+  const fromStudyId = normalize(row[studyIdHeader.value]);
+  if (/^PRJ\S+$/i.test(fromStudyId)) return fromStudyId;
+
+  const valueWithPrj = Object.values(row).find((value) => /^PRJ\S+$/i.test(normalize(value)));
+  return normalize(valueWithPrj);
+};
+
 const buildResultRoute = (row) => ({
   name: 'result',
+  params: {
+    datasetId: getDatasetId(row)
+  },
   query: buildQueryFromRow(row)
 });
 
@@ -250,5 +269,11 @@ h1 {
 .detail-btn:hover {
   background: #1d4ed8;
   border-color: #1d4ed8;
+}
+
+.missing-link {
+  color: #9ca3af;
+  font-size: 12px;
+  white-space: nowrap;
 }
 </style>

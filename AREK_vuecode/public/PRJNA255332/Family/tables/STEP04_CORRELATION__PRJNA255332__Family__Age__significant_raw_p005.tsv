@@ -1,0 +1,4 @@
+dataset	tax_level	analysis_role	variable	variable_display	taxon	rho	p_value	n_samples	FDR_p_value	direction	raw_p_significance	FDR_p_significance
+PRJNA255332	Family	METADATA_CORRELATION	Age	Age	Family:Alcaligenaceae	-0.7733110138540842	9.382978349102896e-06	24	6.568084844372028e-05	Negative	p<0.001	p<0.001
+PRJNA255332	Family	METADATA_CORRELATION	Age	Age	Family:Fusobacteriaceae	-0.7807916524403388	6.737191600915069e-06	24	6.568084844372028e-05	Negative	p<0.001	p<0.001
+PRJNA255332	Family	METADATA_CORRELATION	Age	Age	Family:Neisseriaceae	0.40488956348103794	0.049688505949216095	24	0.23187969442967513	Positive	p<0.05	NS

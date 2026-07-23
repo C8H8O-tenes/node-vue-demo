@@ -1,0 +1,2 @@
+dataset	tax_level	analysis_role	variable	variable_display	taxon	rho	p_value	n_samples	FDR_p_value	direction	raw_p_significance	FDR_p_significance
+PRJNA255332	Class	METADATA_CORRELATION	Age	Age	Class:Fusobacteriia	-0.6947643086984092	0.00016497837825207946	24	0.0016497837825207944	Negative	p<0.001	p<0.005

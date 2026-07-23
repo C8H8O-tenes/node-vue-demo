@@ -1,0 +1,15 @@
+dataset	tax_level	analysis_role	variable	variable_display	taxon	rho	p_value	n_samples	FDR_p_value	direction	raw_p_significance	FDR_p_significance
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Alcaligenaceae	-0.28145902680783474	0.1827364267363878	24	0.28425666381215875	Negative	NS	NS
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Anaerovoracaceae	0.3399015157629499	0.10414468438841178	24	0.20828936877682355	Positive	NS	NS
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Campylobacteraceae	0.5624505137040284	0.0042240933843019565	24	0.020630144553604273	Positive	p<0.005	p<0.05
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Carnobacteriaceae	-0.4923195269578903	0.014529848047547764	24	0.05085446816641718	Negative	p<0.05	NS
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Family_XI	0.12763839587797157	0.5522736461267419	24	0.6443192538145323	Positive	NS	NS
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Fusobacteriaceae	-0.31886221973910844	0.12884561610267062	24	0.2254798281796736	Negative	NS	NS
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Lachnospiraceae	0.6816731911724635	0.00024436910087507005	24	0.003421167412250981	Positive	p<0.001	p<0.005
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Lactobacillaceae	-0.07480638586254744	0.7282919824124869	24	0.7282919824124869	Negative	NS	NS
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Neisseriaceae	0.5601128141458238	0.0044207452614866295	24	0.020630144553604273	Positive	p<0.005	p<0.05
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Pasteurellaceae	0.10566402003084824	0.623149599632991	24	0.6710841842201442	Positive	NS	NS
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Prevotellaceae	-0.24732861325804745	0.2439427578554178	24	0.3415198609975849	Negative	NS	NS
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Saccharimonadaceae	0.4366822774726207	0.03288122957481111	24	0.09206744280947111	Positive	p<0.05	NS
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Family:Veillonellaceae	-0.15195047128329947	0.47845129410485276	24	0.6089380106789035	Negative	NS	NS
+PRJNA255332	Family	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Unclassified_Family	0.40535710339267883	0.04940046736668183	24	0.11526775718892426	Positive	p<0.05	NS

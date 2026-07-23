@@ -1,0 +1,5 @@
+dataset	tax_level	group_variable	metric	contrast	method	statistic	p_value	effect_size	FDR_p_value
+PRJNA255332	Order	Primary_group	Observed	Alcohol_user_vs_Non_alcohol_user	Mann-Whitney_U	61.5	0.6214318582041822	0.0	0.6214318582041822
+PRJNA255332	Order	Primary_group	Shannon	Alcohol_user_vs_Non_alcohol_user	Mann-Whitney_U	73.0	0.2240631222324586	0.2067379855309719	0.4481262444649172
+PRJNA255332	Order	Primary_group	Simpson	Alcohol_user_vs_Non_alcohol_user	Mann-Whitney_U	77.0	0.13652708847216855	0.10506892001154705	0.4481262444649172
+PRJNA255332	Order	Primary_group	Chao1	Alcohol_user_vs_Non_alcohol_user	Mann-Whitney_U	61.5	0.6214318582041822	0.0	0.6214318582041822

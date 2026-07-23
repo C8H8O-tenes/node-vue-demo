@@ -22,5 +22,11 @@ router.get('/test_ping', (req, res) => {
 
 router.get('/query/summary-filter-options', queryApi.getSummaryFilterOptions);
 router.get('/query/summary-detail-table', queryApi.getSummaryDetailTable);
+router.get('/query/dataset-info/:datasetId', queryApi.getDatasetInfo);
+router.get('/query/result-table-files/:datasetId/:taxLevel', queryApi.getResultTableFiles);
+router.get('/query/result-table-preview/:datasetId/:taxLevel/:fileName', queryApi.getResultTablePreview);
+router.get('/query/result-table-page/:datasetId/:taxLevel/:fileName', queryApi.getResultTablePage);
+router.get('/query/result-tables/:datasetId/:taxLevel', queryApi.getResultTables);
+router.get('/query/result-figures/:datasetId/:taxLevel', queryApi.getResultFigures);
 
 module.exports = router;

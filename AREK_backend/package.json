@@ -2,9 +2,9 @@
   "name": "arek-backend",
   "version": "0.1.0",
   "private": true,
-  "main": "app.js",
+  "main": "AREK_app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node AREK_app.js"
   },
   "dependencies": {
     "body-parser": "^1.20.2",

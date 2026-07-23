@@ -1,0 +1,5 @@
+threshold	raw_p_count	FDR_p_count
+0.05	11	11
+0.01	10	9
+0.005	9	9
+0.001	7	7

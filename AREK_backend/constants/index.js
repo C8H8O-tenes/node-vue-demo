@@ -24,6 +24,7 @@ const DATABASE_CONFIG = {
 
 const PATHS = {
   PUBLIC_DIR: BASE_PATHS.PUBLIC_ROOT,
+  RESULT_PUBLIC_DIR: process.env.RESULT_PUBLIC_DIR || path.resolve(process.cwd(), '..', 'AREK_vuecode', 'public'),
   DATASET_DIR: path.join(BASE_PATHS.PUBLIC_ROOT, 'dataset'),
   DEGS_DIR: path.join(BASE_PATHS.PUBLIC_ROOT, 'degs'),
   SUMMARY_TABLE_CSV: process.env.SUMMARY_TABLE_CSV || path.resolve(process.cwd(), '..', 'summarytable.csv')
@@ -53,6 +54,7 @@ const MESSAGES = {
 
 // Keep table names aligned with RMzyme by default to minimize code changes later.
 const DB_TABLES = {
+  SUMMARY_DATASET_INFOR: 'summary_dataset_infor',
   RMP_SC_MYSQL: 'rmp_sc_mysql',
   RMP_BULK_MYSQL: 'rmp_bulk_mysql',
   RMP_TARGET_MYSQL: 'rmp_target_mysql',

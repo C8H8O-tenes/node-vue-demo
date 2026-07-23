@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '@/views/HomePage.vue';
-import ResultPage from '@/views/ResultPage.vue';
+import QuickSearchPage from '@/views/quicksearch.vue';
+import ResultPage from '@/views/result.vue';
 import ContactPage from '@/views/contact.vue';
-import DetailTablePage from '@/views/DetailTable.vue';
 
 const routes = [
   {
@@ -15,14 +15,15 @@ const routes = [
     component: HomePage
   },
   {
-    path: '/result',
+    path: '/result/:datasetId?',
     name: 'result',
     component: ResultPage
   },
   {
-    path: '/detail-table',
-    name: 'detail-table',
-    component: DetailTablePage
+    path: '/quicksearch',
+    name: 'quicksearch',
+    component: QuickSearchPage,
+    alias: '/detail-table'
   },
   {
     path: '/contact',

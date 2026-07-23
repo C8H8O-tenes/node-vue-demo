@@ -1,7 +1,7 @@
 ﻿module.exports = {
   apps: [{
     name: 'arek-backend',
-    script: './app.js',
+    script: './AREK_app.js',
     cwd: '/data/vue_AREK/AREK_backend',
     instances: 1,
     autorestart: true,

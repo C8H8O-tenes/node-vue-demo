@@ -8,7 +8,13 @@ export const PUBLIC_BASE_URL = config.PUBLIC_BASE_URL;
 export const API_ENDPOINTS = {
   TEST_PING: '/test_ping',
   SUMMARY_FILTER_OPTIONS: '/query/summary-filter-options',
-  SUMMARY_DETAIL_TABLE: '/query/summary-detail-table'
+  SUMMARY_DETAIL_TABLE: '/query/summary-detail-table',
+  DATASET_INFO: '/query/dataset-info',
+  RESULT_TABLE_FILES: '/query/result-table-files',
+  RESULT_TABLE_PREVIEW: '/query/result-table-preview',
+  RESULT_TABLE_PAGE: '/query/result-table-page',
+  RESULT_TABLES: '/query/result-tables',
+  RESULT_FIGURES: '/query/result-figures'
 };
 
 export const buildApiUrl = (endpoint, params = {}) => {

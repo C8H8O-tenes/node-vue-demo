@@ -1,0 +1,3 @@
+group	Observed	Shannon	Simpson	n_samples
+Alcohol_user	7.0	0.669724924325815	0.3484858511118454	18
+Non_alcohol_user	7.0	0.28382832668485125	0.11102173322836051	6

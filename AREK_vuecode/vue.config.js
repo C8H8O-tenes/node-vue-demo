@@ -5,6 +5,7 @@ module.exports = defineConfig({
   devServer: {
     host: 'localhost',
     port: 3001,
+    historyApiFallback: true,
     client: {
       overlay: false,
       webSocketURL: 'ws://localhost:3001/ws'
@@ -20,4 +21,3 @@ module.exports = defineConfig({
     }
   }
 });
-

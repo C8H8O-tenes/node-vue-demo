@@ -1,0 +1,6 @@
+dataset	tax_level	analysis_role	variable	variable_display	taxon	rho	p_value	n_samples	FDR_p_value	direction	raw_p_significance	FDR_p_significance
+PRJNA255332	Class	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Class:Campylobacteria	0.554034795294492	0.004968420653373562	24	0.012421051633433905	Positive	p<0.005	p<0.05
+PRJNA255332	Class	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Class:Clostridia	0.5872301290209974	0.00255374229179741	24	0.00966603652281038	Positive	p<0.005	p<0.01
+PRJNA255332	Class	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Class:Fusobacteriia	-0.4946572265160949	0.013999046975116525	24	0.02799809395023305	Negative	p<0.05	p<0.05
+PRJNA255332	Class	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Class:Gammaproteobacteria	0.5811521101696654	0.0028998109568431135	24	0.00966603652281038	Positive	p<0.005	p<0.01
+PRJNA255332	Class	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Class:Saccharimonadia	0.5993861667236613	0.0019657299740182812	24	0.00966603652281038	Positive	p<0.005	p<0.01

@@ -298,7 +298,7 @@ onMounted(() => {
 
 const goToDetail = (targetFilters) => {
   router.push({
-    name: 'detail-table',
+    name: 'quicksearch',
     query: {
       studyNr: targetFilters.studyNr || undefined,
       subject: targetFilters.subject || undefined,

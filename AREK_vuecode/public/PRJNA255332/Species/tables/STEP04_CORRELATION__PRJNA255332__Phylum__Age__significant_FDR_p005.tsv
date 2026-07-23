@@ -1,0 +1,3 @@
+dataset	tax_level	analysis_role	variable	variable_display	taxon	rho	p_value	n_samples	FDR_p_value	direction	raw_p_significance	FDR_p_significance
+PRJNA255332	Phylum	METADATA_CORRELATION	Age	Age	Phylum:Firmicutes	0.5502944760013645	0.005332955063329967	24	0.021331820253319866	Positive	p<0.01	p<0.05
+PRJNA255332	Phylum	METADATA_CORRELATION	Age	Age	Phylum:Fusobacteriota	-0.5516970957362873	0.005193711468375675	24	0.021331820253319866	Negative	p<0.01	p<0.05
