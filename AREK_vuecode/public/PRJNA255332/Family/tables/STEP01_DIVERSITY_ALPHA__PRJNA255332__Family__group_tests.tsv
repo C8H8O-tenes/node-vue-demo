@@ -1,5 +1,0 @@
-dataset	tax_level	group_variable	metric	contrast	method	statistic	p_value	effect_size	FDR_p_value
-PRJNA255332	Family	Primary_group	Observed	Alcohol_user_vs_Non_alcohol_user	Mann-Whitney_U	35.5	0.222547139299897	-1.5	0.445094278599794
-PRJNA255332	Family	Primary_group	Shannon	Alcohol_user_vs_Non_alcohol_user	Mann-Whitney_U	59.0	0.7702606318166959	0.07335285095826827	0.7702606318166959
-PRJNA255332	Family	Primary_group	Simpson	Alcohol_user_vs_Non_alcohol_user	Mann-Whitney_U	60.0	0.721120984278879	0.040317686629959715	0.7702606318166959
-PRJNA255332	Family	Primary_group	Chao1	Alcohol_user_vs_Non_alcohol_user	Mann-Whitney_U	35.5	0.222547139299897	-1.5	0.445094278599794

@@ -1,2 +1,0 @@
-dataset	tax_level	analysis_role	variable	variable_display	taxon	rho	p_value	n_samples	FDR_p_value	direction	raw_p_significance	FDR_p_significance
-PRJNA255332	Genus	METADATA_CORRELATION	Age	Age	Genus:Fusobacterium	-0.7709733142958795	1.0380120697477038e-05	24	0.00013494156906720148	Negative	p<0.001	p<0.001

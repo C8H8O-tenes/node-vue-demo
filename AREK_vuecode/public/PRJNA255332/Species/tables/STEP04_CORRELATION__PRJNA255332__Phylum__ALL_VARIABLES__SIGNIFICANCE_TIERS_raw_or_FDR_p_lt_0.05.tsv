@@ -1,8 +1,0 @@
-dataset	tax_level	analysis_role	variable	variable_display	taxon	rho	p_value	n_samples	FDR_p_value	direction	raw_p_significance	FDR_p_significance
-PRJNA255332	Phylum	METADATA_CORRELATION	Age	Age	Phylum:Firmicutes	0.5502944760013645	0.005332955063329967	24	0.021331820253319866	Positive	p<0.01	p<0.05
-PRJNA255332	Phylum	METADATA_CORRELATION	Age	Age	Phylum:Fusobacteriota	-0.5516970957362873	0.005193711468375675	24	0.021331820253319866	Negative	p<0.01	p<0.05
-PRJNA255332	Phylum	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Phylum:Bacteroidota	-0.47922840943194445	0.01781558389764303	24	0.04750822372704808	Negative	p<0.05	p<0.05
-PRJNA255332	Phylum	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Phylum:Campylobacterota	0.42733147923980225	0.03726724525572401	24	0.059627592409158416	Positive	p<0.05	NS
-PRJNA255332	Phylum	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Phylum:Fusobacteriota	-0.6377244394782169	0.0008012883411498305	24	0.0047680824049830635	Negative	p<0.001	p<0.005
-PRJNA255332	Phylum	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Phylum:Patescibacteria	0.6213605425707845	0.0011920206012457659	24	0.0047680824049830635	Positive	p<0.005	p<0.005
-PRJNA255332	Phylum	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Phylum:Proteobacteria	0.4549163340266165	0.02551285192404812	24	0.05102570384809624	Positive	p<0.05	NS

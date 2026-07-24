@@ -1,2 +1,0 @@
-dataset	tax_level	analysis_role	main_variable	main_variable_display	main_variable_type	term	taxon	beta	standard_error	statistic	p_value	n_samples	covariates	cluster_column	reference_group	model_formula	FDR_p_value	direction	raw_p_significance	FDR_p_significance
-PRJNA255332	Class	OTHER_METADATA_ASSOCIATION	Age	Age	continuous	MAIN_Z	Class:Fusobacteriia	-1.7997753942066603	0.2636738039066165	-6.825764894126814	9.500774842815941e-07	24	Smoking_status;BMI_kg_m2			CLR(Class:Fusobacteriia) ~ Age + Smoking_status + BMI_kg_m2	9.50077484281594e-06	Negative	p<0.001	p<0.001

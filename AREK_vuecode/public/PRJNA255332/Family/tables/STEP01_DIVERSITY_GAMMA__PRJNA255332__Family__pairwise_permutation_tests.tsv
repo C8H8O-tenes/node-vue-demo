@@ -1,4 +1,0 @@
-metric	group_a	group_b	gamma_a	gamma_b	effect_size	p_value	FDR_p_value
-Observed	Alcohol_user	Non_alcohol_user	13.0	12.0	1.0	0.625	0.625
-Shannon	Alcohol_user	Non_alcohol_user	0.39105977522515634	0.23087358453527168	0.16018619068988466	0.172	0.34500000000000003
-Simpson	Alcohol_user	Non_alcohol_user	0.17013456994321263	0.08434537380679852	0.08578919613641411	0.23	0.34500000000000003

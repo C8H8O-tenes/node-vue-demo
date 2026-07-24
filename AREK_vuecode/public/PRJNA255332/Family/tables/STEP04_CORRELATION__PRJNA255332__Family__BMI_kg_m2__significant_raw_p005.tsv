@@ -1,3 +1,0 @@
-dataset	tax_level	analysis_role	variable	variable_display	taxon	rho	p_value	n_samples	FDR_p_value	direction	raw_p_significance	FDR_p_significance
-PRJNA255332	Family	METADATA_CORRELATION	BMI_kg_m2	BMI kg m2	Family:Carnobacteriaceae	-0.5287876400658821	0.007892266185668005	24	0.11049172659935208	Negative	p<0.01	NS
-PRJNA255332	Family	METADATA_CORRELATION	BMI_kg_m2	BMI kg m2	Family:Lachnospiraceae	0.4067597231276016	0.048544157323532476	24	0.33980910126472735	Positive	p<0.05	NS

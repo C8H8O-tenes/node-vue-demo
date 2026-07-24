@@ -1,9 +1,0 @@
-dataset	tax_level	analysis_role	variable	variable_display	taxon	rho	p_value	n_samples	FDR_p_value	direction	raw_p_significance	FDR_p_significance
-PRJNA255332	Order	METADATA_CORRELATION	Age	Age	Order:Bacteroidales	-0.4156429814487792	0.043386652841109395	24	0.23862659062610167	Negative	p<0.05	NS
-PRJNA255332	Order	METADATA_CORRELATION	Age	Age	Order:Fusobacteriales	-0.7616225160630611	1.53714410320147e-05	24	0.0001690858513521617	Negative	p<0.001	p<0.001
-PRJNA255332	Order	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Order:Bacteroidales	-0.43714981738426156	0.03267322044593034	24	0.07188108498104674	Negative	p<0.05	NS
-PRJNA255332	Order	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Order:Burkholderiales	0.41704560118370193	0.0426132317546259	24	0.07812425821681415	Positive	p<0.05	NS
-PRJNA255332	Order	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Order:Campylobacterales	0.5367358185637778	0.006847998395609788	24	0.03516069174721585	Positive	p<0.01	p<0.05
-PRJNA255332	Order	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Order:Fusobacteriales	-0.4502409349102074	0.027261436961497142	24	0.07188108498104674	Negative	p<0.05	NS
-PRJNA255332	Order	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Order:Lachnospirales	0.5175666821865	0.009589279567422504	24	0.03516069174721585	Positive	p<0.01	p<0.05
-PRJNA255332	Order	METADATA_CORRELATION	Alcohol_days_per_week	Alcohol days per week	Order:Saccharimonadales	0.5353331988288551	0.007023398826282573	24	0.03516069174721585	Positive	p<0.01	p<0.05

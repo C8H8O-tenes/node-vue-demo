@@ -1,4 +1,0 @@
-dataset	tax_level	analysis_role	variable	variable_display	taxon	rho	p_value	n_samples	FDR_p_value	direction	raw_p_significance	FDR_p_significance
-PRJNA255332	Class	METADATA_CORRELATION	BMI_kg_m2	BMI kg m2	Class:Clostridia	0.4114351222440109	0.04577319548857306	24	0.13312008018046384	Positive	p<0.05	NS
-PRJNA255332	Class	METADATA_CORRELATION	BMI_kg_m2	BMI kg m2	Class:Gammaproteobacteria	0.4175131410953428	0.04235784670035042	24	0.13312008018046384	Positive	p<0.05	NS
-PRJNA255332	Class	METADATA_CORRELATION	BMI_kg_m2	BMI kg m2	Class:Negativicutes	-0.4474356954403618	0.028355871823082756	24	0.13312008018046384	Negative	p<0.05	NS

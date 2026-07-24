@@ -1,2 +1,0 @@
-dataset	tax_level	analysis_role	main_variable	main_variable_display	main_variable_type	term	taxon	beta	standard_error	statistic	p_value	n_samples	covariates	cluster_column	reference_group	model_formula	FDR_p_value	direction	raw_p_significance	FDR_p_significance
-PRJNA255332	Genus	OTHER_METADATA_ASSOCIATION	Age	Age	continuous	MAIN_Z	Genus:Fusobacterium	-1.8310603832515602	0.28245997458306615	-6.482548141393675	2.0099669741697082e-06	24	Smoking_status;BMI_kg_m2			CLR(Genus:Fusobacterium) ~ Age + Smoking_status + BMI_kg_m2	2.6129570664206204e-05	Negative	p<0.001	p<0.001

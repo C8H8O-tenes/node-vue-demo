@@ -1,2 +1,0 @@
-dataset	tax_level	group_variable	metric	contrast	method	statistic	p_value	effect_size	FDR_p_value
-PRJNA255332	Class	Primary_group	Simpson	Alcohol_user_vs_Non_alcohol_user	Mann-Whitney_U	88.0	0.022437516716692918	0.11445097712548885	0.08975006686677167
