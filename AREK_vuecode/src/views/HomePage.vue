@@ -100,9 +100,19 @@ import { useRouter } from 'vue-router';
 import { API_ENDPOINTS } from '@/constants';
 import { apiRequest } from '@/utils/api';
 import topleader from '@/components/topleader.vue';
+import datasetsIcon from '@/assets/homepage-icons/Datasets.png';
+import enterotypesIcon from '@/assets/homepage-icons/Enterotypes.png';
+import taxaIcon from '@/assets/homepage-icons/Taxa.png';
+import functionsIcon from '@/assets/homepage-icons/Functions.png';
+import networksIcon from '@/assets/homepage-icons/networks.png';
+import mechanismLinksIcon from '@/assets/homepage-icons/mechanism link.png';
+import predictionLeaderboardIcon from '@/assets/homepage-icons/predictive-leaderborad.png';
+import topFeaturesIcon from '@/assets/homepage-icons/top features.png';
+import microbiomeIcon from '@/assets/homepage-icons/microbial-culture.png';
+import mechanismIcon from '@/assets/homepage-icons/mechanism.jpg';
+import predictionIcon from '@/assets/homepage-icons/monitor.png';
 
 const router = useRouter();
-const homepageIcon = (fileName) => `${process.env.BASE_URL}homepage-icons/${fileName}`;
 const message = ref('');
 const messageType = ref('info');
 const searchLoading = ref(false);
@@ -112,50 +122,50 @@ const homeSearch = ref({
 });
 const sampleTypeOptions = ref([]);
 const heroSteps = [
-  { title: 'Microbiome', image: homepageIcon('microbial-culture.png') },
-  { title: 'Mechanism', image: homepageIcon('mechanism.jpg') },
-  { title: 'Prediction', image: homepageIcon('monitor.png') }
+  { title: 'Microbiome', image: microbiomeIcon },
+  { title: 'Mechanism', image: mechanismIcon },
+  { title: 'Prediction', image: predictionIcon }
 ];
 const moduleCards = [
   {
     title: 'Datasets',
     description: 'Access curated datasets across studies',
-    image: homepageIcon('Datasets.png')
+    image: datasetsIcon
   },
   {
     title: 'Enterotypes',
     description: 'Explore and define microbial enterotypes',
-    image: homepageIcon('Enterotypes.png')
+    image: enterotypesIcon
   },
   {
     title: 'Taxa',
     description: 'Analyze taxonomic composition and abundance',
-    image: homepageIcon('Taxa.png')
+    image: taxaIcon
   },
   {
     title: 'Functions',
     description: 'Investigate microbial functional capabilities',
-    image: homepageIcon('Functions.png')
+    image: functionsIcon
   },
   {
     title: 'Networks',
     description: 'Visualize co-occurrence and interaction networks',
-    image: homepageIcon('networks.png')
+    image: networksIcon
   },
   {
     title: 'Mechanism Links',
     description: 'Uncover associations with metabolic pathways',
-    image: homepageIcon('mechanism link.png')
+    image: mechanismLinksIcon
   },
   {
     title: 'Prediction Leaderboard',
     description: 'Compare predictive models and performance',
-    image: homepageIcon('predictive-leaderborad.png')
+    image: predictionLeaderboardIcon
   },
   {
     title: 'Top Features',
     description: 'Identify key biomarkers and predictive features',
-    image: homepageIcon('top features.png')
+    image: topFeaturesIcon
   }
 ];
 

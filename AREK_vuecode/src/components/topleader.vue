@@ -30,10 +30,10 @@
 
 <script setup>
 import { RouterLink, useRoute, useRouter } from 'vue-router';
+import brandLogo from '@/assets/homepage-icons/AREK.png';
 
 const route = useRoute();
 const router = useRouter();
-const brandLogo = `${process.env.BASE_URL}homepage-icons/AREK.png`;
 
 const items = [
   { label: 'Home', to: { name: 'homepage' } },
