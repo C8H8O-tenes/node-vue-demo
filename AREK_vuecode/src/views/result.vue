@@ -46,7 +46,12 @@
               class="info-row"
             >
               <div class="info-key">{{ field.key }}</div>
-              <div class="info-value">{{ field.value || '-' }}</div>
+              <div v-if="field.href" class="info-value">
+                <a class="processed-link" :href="field.href" target="_blank" rel="noopener noreferrer">
+                  {{ field.value }}
+                </a>
+              </div>
+              <div v-else class="info-value">{{ field.value || '-' }}</div>
             </div>
           </div>
           <div v-else class="state">No dataset information loaded.</div>
@@ -75,12 +80,163 @@
             class="result-section analysis-section"
           >
             <div class="section-head">
-              <h2>{{ section.label }}</h2>
+              <h2>{{ sectionTitle(section) }}</h2>
               <span class="source">{{ activeTaxLevel }}</span>
             </div>
 
             <template v-if="section.asset">
-              <div v-if="section.asset.tables.length" class="table-stack">
+              <div v-if="section.id === 'DIFFERENTIAL'" class="figure-block differential-block">
+                <div class="qc-summary differential-summary">
+                  <h3>Differentially Abundant Microbial Taxa</h3>
+                  <p>Identify microbial taxa with significantly different abundances between alcohol-consumption groups.</p>
+                  <p>Threshold: p&lt;0.05</p>
+                </div>
+
+                <div v-if="differentialTables(section).length" class="table-stack">
+                  <article
+                    v-for="table in differentialTables(section)"
+                    :key="table.fileName"
+                    class="data-table-card"
+                  >
+                    <h3>{{ table.fileName }}</h3>
+                    <div class="table-wrap">
+                      <table class="data-table">
+                        <thead>
+                          <tr>
+                            <th v-for="header in table.headers" :key="header">{{ header || '(blank)' }}</th>
+                            <th v-if="isDifferentialSignificantTable(table)">Figure</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-if="!table.rows.length">
+                            <td :colspan="Math.max(table.headers.length + (isDifferentialSignificantTable(table) ? 1 : 0), 1)">No rows in this table.</td>
+                          </tr>
+                          <tr v-for="(row, rowIndex) in table.rows" :key="rowIndex">
+                            <td v-for="header in table.headers" :key="`${rowIndex}-${header}`">
+                              {{ differentialCellValue(row, header, table) }}
+                            </td>
+                            <td v-if="isDifferentialSignificantTable(table)" class="microbe-figure-cell">
+                              <button
+                                v-if="differentialRowFigure(row, table)"
+                                type="button"
+                                class="figure-button microbe-thumb-button"
+                                @click="toggleFigure(differentialRowFigure(row, table))"
+                              >
+                                <img :src="imageSrc(differentialRowFigure(row, table))" :alt="taxonDisplayName(row, table)" />
+                              </button>
+                              <span v-else class="no-figure">-</span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div v-if="table.page > 1 || table.hasMore || table.pageLoading" class="pager">
+                      <button
+                        type="button"
+                        class="pager-btn"
+                        :disabled="table.page <= 1 || table.pageLoading"
+                        @click="loadTablePage(section.id, table, table.page - 1)"
+                      >
+                        Prev
+                      </button>
+                      <span class="pager-text">
+                        Page {{ table.page }}
+                      </span>
+                      <button
+                        type="button"
+                        class="pager-btn"
+                        :disabled="!table.hasMore || table.pageLoading"
+                        @click="loadTablePage(section.id, table, table.page + 1)"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </article>
+                </div>
+                <div v-else-if="section.asset.tablesError" class="state error">{{ section.asset.tablesError }}</div>
+                <div v-else-if="section.asset.tablesLoaded" class="state">No differential tables found for {{ activeTaxLevel }}.</div>
+              </div>
+
+              <div v-else-if="section.id === 'regression'" class="figure-block regression-block">
+                <div class="qc-summary regression-summary">
+                  <h3>Microbial Taxa Associated with Alcohol-Related Variables</h3>
+                  <p>Identify microbial taxa associated with alcohol-related variables using regression models.</p>
+                  <p>Model: Taxon abundance ~ Alcohol-related variable + Covariates</p>
+                </div>
+
+                <div v-if="regressionTables(section).length" class="table-stack">
+                  <article
+                    v-for="table in regressionTables(section)"
+                    :key="table.fileName"
+                    class="data-table-card"
+                  >
+                    <h3>{{ table.fileName }}</h3>
+                    <div class="table-wrap">
+                      <table class="data-table">
+                        <thead>
+                          <tr>
+                            <th v-for="header in table.headers" :key="header">{{ header || '(blank)' }}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-if="!table.rows.length">
+                            <td :colspan="Math.max(table.headers.length, 1)">No rows in this table.</td>
+                          </tr>
+                          <tr v-for="(row, rowIndex) in table.rows" :key="rowIndex">
+                            <td v-for="header in table.headers" :key="`${rowIndex}-${header}`">
+                              {{ cellValue(row, header, table.headers[0]) }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div v-if="table.page > 1 || table.hasMore || table.pageLoading" class="pager">
+                      <button
+                        type="button"
+                        class="pager-btn"
+                        :disabled="table.page <= 1 || table.pageLoading"
+                        @click="loadTablePage(section.id, table, table.page - 1)"
+                      >
+                        Prev
+                      </button>
+                      <span class="pager-text">
+                        Page {{ table.page }}
+                      </span>
+                      <button
+                        type="button"
+                        class="pager-btn"
+                        :disabled="!table.hasMore || table.pageLoading"
+                        @click="loadTablePage(section.id, table, table.page + 1)"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </article>
+                </div>
+                <div v-else-if="section.asset.tablesError" class="state error">{{ section.asset.tablesError }}</div>
+                <div v-else-if="section.asset.tablesLoaded" class="state">No regression tables found for {{ activeTaxLevel }}.</div>
+
+                <div v-if="regressionFigures(section).length" class="figure-stack regression-figure-grid">
+                  <figure
+                    v-for="figure in regressionFigures(section)"
+                    :key="figure.fileName"
+                    class="figure-card regression-figure-card"
+                  >
+                    <button
+                      type="button"
+                      class="figure-button"
+                      @click="toggleFigure(figure)"
+                    >
+                      <img :src="imageSrc(figure)" :alt="figure.fileName" />
+                    </button>
+                    <figcaption>{{ figure.fileName }}</figcaption>
+                  </figure>
+                </div>
+                <div v-else-if="section.asset.figuresError" class="state error">{{ section.asset.figuresError }}</div>
+                <div v-else-if="section.asset.figuresLoaded" class="state">No regression coefficient plots found.</div>
+              </div>
+
+              <div v-else-if="section.asset.tables.length" class="table-stack">
                 <article
                   v-for="table in section.asset.tables"
                   :key="table.fileName"
@@ -132,7 +288,80 @@
               <div v-else-if="section.asset.tablesError" class="state error">{{ section.asset.tablesError }}</div>
               <div v-else-if="section.asset.tablesLoaded" class="state">No {{ section.label }} tables found for {{ activeTaxLevel }}.</div>
 
-              <div class="figure-block">
+              <div v-if="section.id === 'QC'" class="figure-block qc-block">
+                <div class="qc-summary">
+                  <p>Thresholds: &ge;6 samples per dataset; &ge;3 samples per group; taxon prevalence &ge;10%; mean relative abundance &ge;0.01%.</p>
+                </div>
+
+                <div v-if="qcDistributionFigures(section).length" class="figure-stack qc-figure-stack">
+                  <figure
+                    v-for="figure in qcDistributionFigures(section)"
+                    :key="figure.fileName"
+                    class="figure-card qc-figure-card"
+                  >
+                    <button
+                      type="button"
+                      class="figure-button"
+                      @click="toggleFigure(figure)"
+                    >
+                      <img :src="imageSrc(figure)" :alt="qcFigureCaption(figure)" />
+                    </button>
+                    <figcaption>{{ qcFigureCaption(figure) }}</figcaption>
+                  </figure>
+                </div>
+
+                <div v-if="qcTopTaxaFigure(section)" class="qc-top-taxa">
+                  <h3>Identification and annotation the microbiome by using QIIME2 v 2024.10.1 and SILVA release_138 nr99 SSU.</h3>
+                  <figure class="figure-card qc-figure-card">
+                    <button
+                      type="button"
+                      class="figure-button"
+                      @click="toggleFigure(qcTopTaxaFigure(section))"
+                    >
+                      <img :src="imageSrc(qcTopTaxaFigure(section))" :alt="qcFigureCaption(qcTopTaxaFigure(section))" />
+                    </button>
+                    <figcaption>{{ qcFigureCaption(qcTopTaxaFigure(section)) }}</figcaption>
+                  </figure>
+                </div>
+
+                <div v-else-if="section.asset.figuresError" class="state error">{{ section.asset.figuresError }}</div>
+                <div v-else-if="section.asset.figuresLoaded && !qcDistributionFigures(section).length" class="state">No QC figures found.</div>
+              </div>
+
+              <div v-else-if="section.id === 'DIVERSITY'" class="figure-block diversity-block">
+                <article
+                  v-for="group in diversityFigureGroups(section)"
+                  :key="group.id"
+                  class="diversity-group"
+                >
+                  <div class="qc-summary diversity-summary">
+                    <h3>{{ group.title }}</h3>
+                    <p v-for="line in group.description" :key="line">{{ line }}</p>
+                  </div>
+
+                  <div v-if="group.figures.length" class="figure-stack" :class="group.gridClass">
+                    <figure
+                      v-for="figure in group.figures"
+                      :key="figure.fileName"
+                      class="figure-card diversity-figure-card"
+                    >
+                      <button
+                        type="button"
+                        class="figure-button"
+                        @click="toggleFigure(figure)"
+                      >
+                        <img :src="imageSrc(figure)" :alt="figure.fileName" />
+                      </button>
+                      <figcaption>{{ figure.fileName }}</figcaption>
+                    </figure>
+                  </div>
+                  <div v-else-if="section.asset.figuresLoaded" class="state">No {{ group.title }} figures found.</div>
+                </article>
+
+                <div v-if="section.asset.figuresError" class="state error">{{ section.asset.figuresError }}</div>
+              </div>
+
+              <div v-else-if="section.id !== 'DIFFERENTIAL'" class="figure-block">
                 <h3>{{ section.label }} figures</h3>
                 <div v-if="section.asset.figures.length" class="figure-stack">
                   <figure
@@ -143,7 +372,6 @@
                     <button
                       type="button"
                       class="figure-button"
-                      :class="{ expanded: expandedFigureKey === figureKeyValue(figure) }"
                       @click="toggleFigure(figure)"
                     >
                       <img :src="imageSrc(figure)" :alt="figure.fileName" />
@@ -159,13 +387,35 @@
         </section>
       </section>
     </main>
+
+    <button type="button" class="to-top-btn" @click="scrollToTop">
+      To top
+    </button>
+
+    <div
+      v-if="lightboxFigure"
+      class="image-lightbox"
+      role="dialog"
+      aria-modal="true"
+      @click="closeLightbox"
+    >
+      <button type="button" class="lightbox-close" aria-label="Close image preview" @click.stop="closeLightbox">
+        Close
+      </button>
+      <img
+        class="lightbox-image"
+        :src="imageSrc(lightboxFigure)"
+        :alt="lightboxFigure.fileName"
+        @click.stop="closeLightbox"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { API_BASE_URL, API_ENDPOINTS } from '@/constants';
+import { API_BASE_URL, API_ENDPOINTS, PUBLIC_BASE_URL } from '@/constants';
 import { apiRequest } from '@/utils/api';
 import topleader from '@/components/topleader.vue';
 
@@ -176,7 +426,7 @@ const datasetRow = ref({});
 const activeTaxLevel = ref('Phylum');
 const taxLevelAvailability = ref({});
 const sectionAssets = ref({});
-const expandedFigureKey = ref('');
+const lightboxFigure = ref(null);
 const activeAssetRequestId = ref(0);
 const loadedSectionIds = ref({});
 const sectionElements = new Map();
@@ -184,6 +434,14 @@ let sectionObserver = null;
 const pageSize = 10;
 
 const taxonomyLevels = ['Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species'];
+const datasetInfoFields = [
+  'Study subject',
+  'Study ID',
+  'Study title',
+  'Sample type',
+  'Collection date/time',
+  'Sequencing method'
+];
 const analysisSections = [
   { id: 'QC', label: 'QC', keyword: 'QC' },
   { id: 'DIVERSITY', label: 'DIVERSITY', keyword: 'DIVERSITY' },
@@ -191,6 +449,71 @@ const analysisSections = [
   { id: 'regression', label: 'regression', keyword: 'ALCOHOL_REGRESSION' },
   { id: 'ASSOCIATION', label: 'ASSOCIATION', keyword: 'OTHER_METADATA_ASSOCIATION' },
   { id: 'CORRELATION', label: 'CORRELATION', keyword: 'CORRELATION' }
+];
+const qcFigureDefinitions = [
+  {
+    token: 'read_depth_distribution.png',
+    caption: 'Read depth distribution: Distribution of total read counts across samples.'
+  },
+  {
+    token: 'taxa_abundance_distribution.png',
+    caption: 'Taxon abundance distribution: Distribution of log10-transformed mean relative abundances across detected taxa.'
+  },
+  {
+    token: 'taxa_prevalence_distribution.png',
+    caption: 'Taxon prevalence distribution: Distribution of taxon prevalence across samples.'
+  }
+];
+const qcTopTaxaDefinition = {
+  token: 'top_taxa_heatmap.png',
+  caption: 'Top-taxa heatmap: Heatmap of CLR-transformed and row-wise z-scored abundances of the most abundant taxa (top 30) across samples.'
+};
+const diversityFigureDefinitions = [
+  {
+    id: 'alpha',
+    title: 'Alpha diversity',
+    keyword: 'alpha',
+    gridClass: 'diversity-grid-2',
+    description: [
+      'Diversity within an individual sample, reflecting microbial richness and evenness.',
+      'Alpha diversity was assessed using Observed richness, Shannon diversity, Simpson evenness/dominance, and Chao1 estimated richness.'
+    ],
+    tokens: [
+      'observed_boxplot.png',
+      'shannon_boxplot.png',
+      'simpson_boxplot.png',
+      'chao1_boxplot.png'
+    ]
+  },
+  {
+    id: 'beta',
+    title: 'Beta diversity',
+    keyword: 'beta',
+    gridClass: 'diversity-grid-3',
+    description: [
+      'Differences in microbial community composition between samples or groups',
+      'Beta diversity was assessed using Aitchison, BrayCurtis, and Jaccard.'
+    ],
+    tokens: [
+      'aitchison_pcoa.png',
+      'braycurtis_pcoa.png',
+      'jaccard_pcoa.png'
+    ]
+  },
+  {
+    id: 'gamma',
+    title: 'Gamma diversity',
+    keyword: 'gamma',
+    gridClass: 'diversity-grid-2',
+    description: [
+      'Total microbial diversity across all samples within a dataset, group, or region.',
+      'Gamma diversity was assessed using Gamma observed, Gamma Simpson.'
+    ],
+    tokens: [
+      'observed_barplot.png',
+      'simpson_barplot.png'
+    ]
+  }
 ];
 
 const createEmptySectionState = () => ({
@@ -222,6 +545,7 @@ const resetDisplayedSections = () => {
 resetDisplayedSections();
 
 const normalize = (value) => (value ?? '').toString().trim();
+const lowerText = (value) => normalize(value).toLowerCase();
 const encodePathPart = (value) => encodeURIComponent(value);
 const apiBase = computed(() => (API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL));
 const FETCH_TIMEOUT_MS = 30000;
@@ -266,10 +590,20 @@ const datasetId = computed(() => {
 });
 
 const datasetFields = computed(() =>
-  Object.entries(datasetRow.value).map(([key, value]) => ({
-    key,
-    value: normalize(value)
-  }))
+  [
+    ...datasetInfoFields.map((label) => {
+      const sourceKey = Object.keys(datasetRow.value).find((key) => key.toLowerCase().includes(label.toLowerCase()));
+      return {
+        key: label,
+        value: sourceKey ? normalize(datasetRow.value[sourceKey]) : ''
+      };
+    }),
+    {
+      key: 'Processed data',
+      value: datasetId.value ? 'Open processed data' : '',
+      href: datasetId.value ? `${PUBLIC_BASE_URL}/${encodePathPart(datasetId.value)}/` : ''
+    }
+  ]
 );
 
 const isTaxLevelAvailable = (taxLevel) => {
@@ -280,7 +614,7 @@ const isTaxLevelAvailable = (taxLevel) => {
 const firstAvailableTaxLevel = () => taxonomyLevels.find((taxLevel) => isTaxLevelAvailable(taxLevel)) || taxonomyLevels[0];
 
 const sectionId = (taxLevel, sectionIdValue) => `${taxLevel}-${sectionIdValue}`;
-const publicBase = computed(() => process.env.BASE_URL || '/');
+const publicBase = computed(() => PUBLIC_BASE_URL || '/');
 const sectionState = (sectionIdValue) => sectionAssets.value[sectionIdValue] || createEmptySectionState();
 
 const setSectionElement = (sectionIdValue, el) => {
@@ -296,17 +630,146 @@ const imageSrc = (figure) => {
   return `${base}${figure.publicPath}`;
 };
 
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+};
+
 const cellValue = (row, header, firstHeader) => {
   if (row && typeof row === 'object') return row[header] ?? '';
   return header === firstHeader ? row : '';
 };
 
 const toggleFigure = (figure) => {
-  const key = figureKeyValue(figure);
-  expandedFigureKey.value = expandedFigureKey.value === key ? '' : key;
+  if (!figure) return;
+  const currentKey = lightboxFigure.value ? figureKeyValue(lightboxFigure.value) : '';
+  const nextKey = figureKeyValue(figure);
+  lightboxFigure.value = currentKey === nextKey ? null : figure;
+};
+
+const closeLightbox = () => {
+  lightboxFigure.value = null;
 };
 
 const figureKeyValue = (figure) => figure.publicPath || figure.fileName;
+const lowerFigureName = (figure) => normalize(figure?.fileName).toLowerCase();
+
+const sectionTitle = (section) => (
+  {
+    QC: 'Pre-processing: quality control',
+    DIFFERENTIAL: 'Differentially Abundant Microbial Taxa',
+    regression: 'Microbial Taxa Associated with Alcohol-Related Variables'
+  }[section.id] || section.label
+);
+
+const qcDistributionFigures = (section) => {
+  const figures = section?.asset?.figures || [];
+
+  return qcFigureDefinitions
+    .map((definition) => figures.find((figure) => lowerFigureName(figure).includes(definition.token)))
+    .filter(Boolean);
+};
+
+const qcTopTaxaFigure = (section) => {
+  const figures = section?.asset?.figures || [];
+  return figures.find((figure) => lowerFigureName(figure).includes(qcTopTaxaDefinition.token));
+};
+
+const qcFigureCaption = (figure) => {
+  const fileName = lowerFigureName(figure);
+  const definition = [...qcFigureDefinitions, qcTopTaxaDefinition]
+    .find((item) => fileName.includes(item.token));
+
+  return definition?.caption || figure?.fileName || '';
+};
+
+const diversityFigureGroups = (section) => {
+  const figures = section?.asset?.figures || [];
+
+  return diversityFigureDefinitions.map((definition) => ({
+    ...definition,
+    figures: definition.tokens
+      .map((token) => figures.find((figure) => {
+        const fileName = lowerFigureName(figure);
+        return fileName.includes(definition.keyword) && fileName.includes(token);
+      }))
+      .filter(Boolean)
+  }));
+};
+
+const isDifferentialSignificantFileName = (fileName) => lowerText(fileName).endsWith('significant_raw_p005.tsv');
+const isDifferentialAllTaxaFileName = (fileName) => lowerText(fileName).endsWith('_all_taxa.tsv');
+const isDifferentialRelevantFileName = (fileName) => (
+  isDifferentialSignificantFileName(fileName) || isDifferentialAllTaxaFileName(fileName)
+);
+
+const isDifferentialSignificantTable = (table) => isDifferentialSignificantFileName(table?.fileName);
+const isDifferentialAllTaxaTable = (table) => isDifferentialAllTaxaFileName(table?.fileName);
+
+const differentialTables = (section) => (
+  (section?.asset?.tables || [])
+    .filter((table) => isDifferentialRelevantFileName(table.fileName))
+    .sort((a, b) => {
+      const aRank = isDifferentialSignificantTable(a) ? 0 : 1;
+      const bRank = isDifferentialSignificantTable(b) ? 0 : 1;
+      return aRank - bRank || a.fileName.localeCompare(b.fileName);
+    })
+);
+
+const taxonHeader = (table) => (
+  table?.headers?.find((header) => lowerText(header) === 'taxon')
+  || table?.headers?.find((header) => lowerText(header).includes('taxon'))
+  || 'taxon'
+);
+
+const taxonDisplayName = (row, table) => {
+  const rawTaxon = normalize(row?.[taxonHeader(table)]);
+  if (!rawTaxon) return '';
+  return rawTaxon.includes(':') ? rawTaxon.split(':').pop().trim() : rawTaxon;
+};
+
+const differentialCellValue = (row, header, table) => {
+  if (isDifferentialSignificantTable(table) && header === taxonHeader(table)) {
+    return taxonDisplayName(row, table);
+  }
+
+  return cellValue(row, header, table.headers[0]);
+};
+
+const figureSearchToken = (value) => lowerText(value).replace(/[^a-z0-9]+/g, '');
+
+const differentialRowFigure = (row, table) => {
+  const microbeName = taxonDisplayName(row, table);
+  const microbeToken = figureSearchToken(microbeName);
+  if (!microbeToken) return null;
+
+  const figures = sectionState('DIFFERENTIAL').figures || [];
+  const matches = figures.filter((figure) => {
+    const fileName = lowerFigureName(figure);
+    return fileName.includes('differential') && figureSearchToken(fileName).includes(microbeToken);
+  });
+
+  return matches.find((figure) => lowerFigureName(figure).includes('boxplot')) || matches[0] || null;
+};
+
+const isRegressionSignificantFileName = (fileName) => lowerText(fileName).endsWith('significant_raw_p005.tsv');
+
+const regressionTables = (section) => (
+  (section?.asset?.tables || [])
+    .filter((table) => isRegressionSignificantFileName(table.fileName))
+    .sort((a, b) => a.fileName.localeCompare(b.fileName))
+);
+
+const regressionFigures = (section) => (
+  (section?.asset?.figures || [])
+    .filter((figure) => {
+      const fileName = lowerFigureName(figure);
+      return fileName.includes('regression') && fileName.endsWith('_coefficient_plot.png');
+    })
+    .sort((a, b) => a.fileName.localeCompare(b.fileName))
+);
 
 const loadDatasetInfo = async () => {
   if (!datasetId.value) {
@@ -437,7 +900,12 @@ const loadSectionAssets = async (sectionIdValue, taxLevel = activeTaxLevel.value
     { keyword: section.keyword }
   )
     .then(async (resp) => {
-      const files = resp?.data?.files || [];
+      const allFiles = resp?.data?.files || [];
+      const files = section.id === 'DIFFERENTIAL'
+        ? allFiles.filter((file) => isDifferentialRelevantFileName(file.fileName))
+        : section.id === 'regression'
+          ? allFiles.filter((file) => isRegressionSignificantFileName(file.fileName))
+        : allFiles;
       if (DEBUG_RESULT_ASSETS) {
         console.log('[result table files]', {
           requestId,
@@ -558,7 +1026,7 @@ const loadActiveTaxLevelAssets = async (taxLevel = activeTaxLevel.value) => {
   const requestId = activeAssetRequestId.value + 1;
   activeAssetRequestId.value = requestId;
   loadedSectionIds.value = {};
-  expandedFigureKey.value = '';
+  closeLightbox();
   resetDisplayedSections();
 
   if (DEBUG_RESULT_ASSETS) {
@@ -600,14 +1068,14 @@ watch(datasetId, () => {
   datasetRow.value = {};
   sectionAssets.value = {};
   taxLevelAvailability.value = {};
-  expandedFigureKey.value = '';
+  closeLightbox();
   loadDatasetInfo();
   loadTaxLevelAvailability();
   loadActiveTaxLevelAssets();
 });
 
 watch(activeTaxLevel, (taxLevel) => {
-  expandedFigureKey.value = '';
+  closeLightbox();
   loadActiveTaxLevelAssets(taxLevel);
 });
 
@@ -792,15 +1260,26 @@ h3 {
   word-break: break-word;
 }
 
+.processed-link {
+  color: var(--arek-blue);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.processed-link:hover {
+  text-decoration: underline;
+}
+
 .tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   margin: 0 0 18px;
   border-bottom: 1px solid var(--arek-border);
 }
 
 .tab-btn {
+  min-width: 142px;
   border: 1px solid var(--arek-border);
   border-bottom: 0;
   border-radius: 8px 8px 0 0;
@@ -808,7 +1287,8 @@ h3 {
   color: var(--arek-text-body);
   cursor: pointer;
   font-weight: 800;
-  padding: 10px 18px;
+  padding: 14px 28px;
+  text-align: center;
 }
 
 .tab-btn.active {
@@ -828,6 +1308,63 @@ h3 {
 
 .taxonomy-panel {
   min-width: 0;
+}
+
+.to-top-btn {
+  position: fixed;
+  right: 26px;
+  bottom: 26px;
+  z-index: 20;
+  border: 0;
+  border-radius: 8px;
+  background: var(--arek-blue-deep);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 12px 18px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.22);
+}
+
+.to-top-btn:hover {
+  background: var(--arek-blue);
+}
+
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.88);
+  padding: 5vh 5vw;
+  cursor: zoom-out;
+}
+
+.lightbox-image {
+  max-width: 80vw;
+  max-height: 80vh;
+  object-fit: contain;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+
+.lightbox-close {
+  position: fixed;
+  top: 22px;
+  right: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 10px 14px;
+}
+
+.lightbox-close:hover {
+  background: rgba(37, 99, 235, 0.9);
 }
 
 .analysis-section {
@@ -931,6 +1468,79 @@ h3 {
   gap: 18px;
 }
 
+.qc-block {
+  gap: 18px;
+}
+
+.qc-summary {
+  background: #67679d;
+  color: #ffffff;
+  border-radius: 2px;
+  padding: 12px 14px;
+}
+
+.qc-summary p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.qc-figure-stack {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+
+.qc-top-taxa {
+  display: grid;
+  gap: 12px;
+}
+
+.qc-top-taxa h3 {
+  margin: 0;
+  color: var(--arek-text-strong);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.diversity-block {
+  gap: 24px;
+}
+
+.diversity-group {
+  display: grid;
+  gap: 14px;
+}
+
+.diversity-summary {
+  display: grid;
+  gap: 4px;
+}
+
+.diversity-summary h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.diversity-summary p {
+  font-size: 15px;
+}
+
+.diversity-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.diversity-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.regression-figure-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
 .figure-card {
   margin: 0;
   display: grid;
@@ -954,20 +1564,74 @@ h3 {
   margin: 0 auto;
 }
 
-.figure-button.expanded {
-  cursor: zoom-out;
-}
-
-.figure-button.expanded img {
-  width: min(100%, 1200px);
-}
-
 figcaption {
   color: var(--arek-text-muted);
   font-size: 13px;
   font-weight: 700;
   text-align: center;
   word-break: break-word;
+}
+
+.qc-figure-card figcaption {
+  color: var(--arek-text-strong);
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.diversity-figure-card figcaption {
+  color: var(--arek-text-strong);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.differential-block,
+.regression-block {
+  gap: 18px;
+}
+
+.differential-summary,
+.regression-summary {
+  display: grid;
+  gap: 4px;
+}
+
+.differential-summary h3,
+.regression-summary h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.differential-summary p,
+.regression-summary p {
+  font-size: 15px;
+}
+
+.regression-figure-card figcaption {
+  color: var(--arek-text-strong);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.microbe-figure-cell {
+  min-width: 160px;
+  white-space: normal;
+}
+
+.microbe-thumb-button {
+  max-width: 150px;
+  padding: 6px;
+}
+
+.microbe-thumb-button img {
+  width: 100%;
+}
+
+.no-figure {
+  color: var(--arek-text-muted);
+  font-weight: 700;
 }
 
 .state,
@@ -999,6 +1663,16 @@ figcaption {
   }
 
   .dataset-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .qc-figure-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .diversity-grid-2,
+  .diversity-grid-3,
+  .regression-figure-grid {
     grid-template-columns: 1fr;
   }
 }

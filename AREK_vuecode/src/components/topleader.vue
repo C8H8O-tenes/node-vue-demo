@@ -21,8 +21,8 @@
         </template>
       </nav>
 
-      <button class="avatar-btn" type="button" aria-label="Contact" @click="goContact">
-        <span class="avatar-inner">i</span>
+      <button class="contact-btn" type="button" @click="goContact">
+        Contact Information
       </button>
     </div>
   </header>
@@ -37,7 +37,7 @@ const router = useRouter();
 
 const items = [
   { label: 'Home', to: { name: 'homepage' } },
-  { label: 'Explore', to: { name: 'explore' } },
+  { label: 'Advanced Search', to: { name: 'explore' } },
   { label: 'Enterotype Explorer' },
   { label: 'Mechanism' },
   { label: 'Prediction Results' },
@@ -121,22 +121,23 @@ const goContact = () => {
   cursor: default;
 }
 
-.avatar-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
+.contact-btn {
+  min-height: 42px;
   border: 2px solid var(--arek-blue-soft);
+  border-radius: 8px;
   background: #f8fafc;
-  display: grid;
-  place-items: center;
+  color: var(--arek-blue-deep);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
   cursor: pointer;
-  padding: 0;
+  padding: 8px 14px;
+  white-space: nowrap;
 }
 
-.avatar-inner {
-  font-size: 21px;
-  line-height: 1;
-  color: var(--arek-blue-deep);
+.contact-btn:hover {
+  background: var(--arek-blue-soft);
+  color: #fff;
 }
 
 @media (max-width: 1100px) {
@@ -164,7 +165,7 @@ const goContact = () => {
     bottom: -4px;
   }
 
-  .avatar-btn {
+  .contact-btn {
     justify-self: center;
   }
 }

@@ -28,7 +28,8 @@
           </div>
         </section>
 
-        <form class="home-search" @submit.prevent="goToFirstSearchResult">
+        <form class="home-search" aria-label="Quick Search" @submit.prevent="goToFirstSearchResult">
+          <span class="quick-search-label">Quick Search</span>
           <select v-model="homeSearch.sampleType" class="sample-select" aria-label="Sample type">
             <option value="">All sample types</option>
             <option v-for="item in sampleTypeOptions" :key="`home-sample-${item}`" :value="item">{{ item }}</option>
@@ -353,8 +354,17 @@ const goToFirstSearchResult = async () => {
   border-radius: 10px;
   background: #ffffff;
   display: grid;
-  grid-template-columns: minmax(180px, 20%) minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(180px, 20%) minmax(0, 1fr) auto;
   overflow: hidden;
+}
+
+.quick-search-label {
+  align-self: center;
+  color: var(--arek-blue-deep);
+  font-size: 17px;
+  font-weight: 800;
+  padding: 0 18px;
+  white-space: nowrap;
 }
 
 .sample-select,

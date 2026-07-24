@@ -1,7 +1,10 @@
 const path = require('path');
 
+const isProduction = process.env.NODE_ENV === 'production';
+const LOCAL_FRONTEND_PUBLIC_DIR = path.resolve(__dirname, '..', '..', 'AREK_vuecode', 'public');
+
 const BASE_PATHS = {
-  DATA_ROOT: process.env.DATA_ROOT || (process.env.NODE_ENV === 'production' ? '/data/AREK_DATA' : '.'),
+  DATA_ROOT: process.env.DATA_ROOT || (isProduction ? '/data/AREK_DATA' : '.'),
   get PUBLIC_ROOT() {
     return path.join(this.DATA_ROOT, 'public');
   }
@@ -23,8 +26,8 @@ const DATABASE_CONFIG = {
 };
 
 const PATHS = {
-  PUBLIC_DIR: BASE_PATHS.PUBLIC_ROOT,
-  RESULT_PUBLIC_DIR: process.env.RESULT_PUBLIC_DIR || path.resolve(process.cwd(), '..', 'AREK_vuecode', 'public'),
+  PUBLIC_DIR: process.env.PUBLIC_DIR || (isProduction ? BASE_PATHS.PUBLIC_ROOT : LOCAL_FRONTEND_PUBLIC_DIR),
+  RESULT_PUBLIC_DIR: process.env.RESULT_PUBLIC_DIR || (isProduction ? BASE_PATHS.PUBLIC_ROOT : LOCAL_FRONTEND_PUBLIC_DIR),
   DATASET_DIR: path.join(BASE_PATHS.PUBLIC_ROOT, 'dataset'),
   DEGS_DIR: path.join(BASE_PATHS.PUBLIC_ROOT, 'degs'),
   SUMMARY_TABLE_CSV: process.env.SUMMARY_TABLE_CSV || path.resolve(process.cwd(), '..', 'summarytable.csv')

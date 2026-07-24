@@ -5,7 +5,7 @@
     <main class="explore">
       <section class="card">
         <div class="page-head">
-          <h1>Explore</h1>
+          <h1>Advanced Search</h1>
         </div>
 
         <div class="search-panel">
