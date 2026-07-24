@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '@/views/HomePage.vue';
+import ExplorePage from '@/views/Explore.vue';
 import QuickSearchPage from '@/views/quicksearch.vue';
 import ResultPage from '@/views/result.vue';
 import ContactPage from '@/views/contact.vue';
@@ -13,6 +14,11 @@ const routes = [
     path: '/homepage',
     name: 'homepage',
     component: HomePage
+  },
+  {
+    path: '/explore',
+    name: 'explore',
+    component: ExplorePage
   },
   {
     path: '/result/:datasetId?',

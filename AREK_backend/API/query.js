@@ -104,6 +104,50 @@ const findTableFilesForRequest = async ({ datasetId, taxLevel, keyword }) => {
   });
 };
 
+const getAssetDirHasFiles = async (assetDir, predicate = () => true) => {
+  const entries = await readAssetEntries(assetDir);
+  return entries.some((entry) => entry.isFile() && predicate(entry.name));
+};
+
+const getResultAssetAvailability = async (req, res) => {
+  const datasetId = normalize(req.params.datasetId || req.query.datasetId);
+
+  if (!datasetId || !/^PRJ\S+$/i.test(datasetId)) {
+    return UTILS.sendError(res, 'A valid PRJ dataset id is required', HTTP_STATUS.BAD_REQUEST, 'INVALID_DATASET_ID');
+  }
+
+  try {
+    const datasetDir = path.resolve(PATHS.RESULT_PUBLIC_DIR, datasetId);
+    const publicRoot = path.resolve(PATHS.RESULT_PUBLIC_DIR);
+
+    if (!isPathInside(datasetDir, publicRoot)) {
+      throw new Error('Invalid result asset path');
+    }
+
+    const levels = await Promise.all(TAXONOMY_LEVELS.map(async (taxLevel) => {
+      const taxDir = path.join(datasetDir, taxLevel);
+      const tablesDir = path.join(taxDir, ASSET_DIRS.tables);
+      const figuresDir = path.join(taxDir, ASSET_DIRS.figures);
+      const hasTables = await getAssetDirHasFiles(tablesDir, isSupportedTableFile);
+      const hasFigures = await getAssetDirHasFiles(figuresDir, (name) => name.toLowerCase().endsWith('.png'));
+
+      return {
+        taxLevel,
+        hasTables,
+        hasFigures,
+        available: hasTables || hasFigures
+      };
+    }));
+
+    return UTILS.sendSuccess(res, {
+      datasetId,
+      levels
+    }, 'Result asset availability loaded');
+  } catch (error) {
+    return UTILS.sendError(res, error.message, HTTP_STATUS.INTERNAL_SERVER_ERROR, 'RESULT_ASSET_AVAILABILITY_ERROR');
+  }
+};
+
 const getSummaryFilterOptions = async (req, res) => {
   try {
     const rows = await getSummaryRows();
@@ -189,6 +233,57 @@ const getSummaryDetailTable = async (req, res) => {
       },
       source: DB_TABLES.SUMMARY_DATASET_INFOR
     }, 'Summary dataset table loaded');
+  } catch (error) {
+    return UTILS.sendError(res, error.message, HTTP_STATUS.INTERNAL_SERVER_ERROR, 'DATABASE_ERROR');
+  }
+};
+
+const getSummarySearch = async (req, res) => {
+  const keyword = normalize(req.query.keyword).toLowerCase();
+  const selectedSampleType = normalize(req.query.sampleType);
+
+  try {
+    const rows = await getSummaryRows();
+
+    if (!rows.length) {
+      return UTILS.sendSuccess(res, {
+        headers: [],
+        rows: [],
+        total: 0,
+        first: null,
+        source: DB_TABLES.SUMMARY_DATASET_INFOR
+      }, 'Summary dataset table is empty');
+    }
+
+    const headers = getSummaryHeaders(rows);
+    const { sampleType: sampleTypeHeader, studyId: studyIdHeader, studyNr: studyNrHeader, subject: subjectHeader } = getCoreHeaders(headers);
+
+    const matchedRows = rows.filter((row) => {
+      if (selectedSampleType && normalize(row[sampleTypeHeader]) !== selectedSampleType) return false;
+      if (!keyword) return true;
+
+      return headers.some((header) => normalize(row[header]).toLowerCase().includes(keyword));
+    });
+
+    const mapRow = (row) => ({
+      row,
+      datasetId: normalize(row[studyIdHeader]),
+      studyNr: normalize(row[studyNrHeader]),
+      subject: normalize(row[subjectHeader]),
+      sampleType: normalize(row[sampleTypeHeader])
+    });
+
+    return UTILS.sendSuccess(res, {
+      headers,
+      rows: matchedRows,
+      total: matchedRows.length,
+      first: matchedRows.length ? mapRow(matchedRows[0]) : null,
+      filters: {
+        keyword,
+        sampleType: selectedSampleType
+      },
+      source: DB_TABLES.SUMMARY_DATASET_INFOR
+    }, 'Summary search loaded');
   } catch (error) {
     return UTILS.sendError(res, error.message, HTTP_STATUS.INTERNAL_SERVER_ERROR, 'DATABASE_ERROR');
   }
@@ -411,8 +506,10 @@ const getResultFigures = async (req, res) => {
 
 module.exports = {
   getSummaryFilterOptions,
+  getSummarySearch,
   getSummaryDetailTable,
   getDatasetInfo,
+  getResultAssetAvailability,
   getResultTables,
   getResultTableFiles,
   getResultTablePreview,

@@ -11,7 +11,8 @@
           <button
             type="button"
             class="nav-group-title"
-            :class="{ active: activeTaxLevel === taxLevel }"
+            :class="{ active: activeTaxLevel === taxLevel, disabled: !isTaxLevelAvailable(taxLevel) }"
+            :disabled="!isTaxLevelAvailable(taxLevel)"
             @click="setActiveTaxLevel(taxLevel)"
           >
             {{ taxLevel }}
@@ -21,6 +22,7 @@
             :key="`${taxLevel}-${section.id}`"
             type="button"
             class="nav-subitem"
+            :disabled="!isTaxLevelAvailable(taxLevel)"
             @click="jumpToSection(taxLevel, section.id)"
           >
             {{ section.label }}
@@ -56,7 +58,8 @@
             :key="taxLevel"
             type="button"
             class="tab-btn"
-            :class="{ active: activeTaxLevel === taxLevel }"
+            :class="{ active: activeTaxLevel === taxLevel, disabled: !isTaxLevelAvailable(taxLevel) }"
+            :disabled="!isTaxLevelAvailable(taxLevel)"
             @click="setActiveTaxLevel(taxLevel)"
           >
             {{ taxLevel }}
@@ -171,6 +174,7 @@ const loading = ref(false);
 const error = ref('');
 const datasetRow = ref({});
 const activeTaxLevel = ref('Phylum');
+const taxLevelAvailability = ref({});
 const sectionAssets = ref({});
 const expandedFigureKey = ref('');
 const activeAssetRequestId = ref(0);
@@ -268,6 +272,13 @@ const datasetFields = computed(() =>
   }))
 );
 
+const isTaxLevelAvailable = (taxLevel) => {
+  const availability = taxLevelAvailability.value[taxLevel];
+  return availability === undefined ? true : Boolean(availability);
+};
+
+const firstAvailableTaxLevel = () => taxonomyLevels.find((taxLevel) => isTaxLevelAvailable(taxLevel)) || taxonomyLevels[0];
+
 const sectionId = (taxLevel, sectionIdValue) => `${taxLevel}-${sectionIdValue}`;
 const publicBase = computed(() => process.env.BASE_URL || '/');
 const sectionState = (sectionIdValue) => sectionAssets.value[sectionIdValue] || createEmptySectionState();
@@ -315,6 +326,25 @@ const loadDatasetInfo = async () => {
     datasetRow.value = {};
   } finally {
     loading.value = false;
+  }
+};
+
+const loadTaxLevelAvailability = async () => {
+  if (!datasetId.value) return;
+
+  try {
+    const resp = await fetchJson(`${API_ENDPOINTS.RESULT_ASSET_AVAILABILITY}/${encodePathPart(datasetId.value)}`);
+    const levels = resp?.data?.levels || [];
+    taxLevelAvailability.value = levels.reduce((availability, item) => {
+      availability[item.taxLevel] = Boolean(item.available);
+      return availability;
+    }, {});
+
+    if (!isTaxLevelAvailable(activeTaxLevel.value)) {
+      activeTaxLevel.value = firstAvailableTaxLevel();
+    }
+  } catch (err) {
+    taxLevelAvailability.value = {};
   }
 };
 
@@ -545,10 +575,12 @@ const loadActiveTaxLevelAssets = async (taxLevel = activeTaxLevel.value) => {
 };
 
 const setActiveTaxLevel = (taxLevel) => {
+  if (!isTaxLevelAvailable(taxLevel)) return;
   activeTaxLevel.value = taxLevel;
 };
 
 const jumpToSection = async (taxLevel, targetSectionId) => {
+  if (!isTaxLevelAvailable(taxLevel)) return;
   activeTaxLevel.value = taxLevel;
   await nextTick();
   loadSectionAssets(targetSectionId, taxLevel, activeAssetRequestId.value);
@@ -560,14 +592,17 @@ const jumpToSection = async (taxLevel, targetSectionId) => {
 
 onMounted(() => {
   loadDatasetInfo();
+  loadTaxLevelAvailability();
   loadActiveTaxLevelAssets();
 });
 
 watch(datasetId, () => {
   datasetRow.value = {};
   sectionAssets.value = {};
+  taxLevelAvailability.value = {};
   expandedFigureKey.value = '';
   loadDatasetInfo();
+  loadTaxLevelAvailability();
   loadActiveTaxLevelAssets();
 });
 
@@ -657,6 +692,14 @@ onBeforeUnmount(() => {
   background: #eef6fb;
 }
 
+.nav-group-title.disabled,
+.nav-subitem:disabled,
+.tab-btn.disabled {
+  color: #a0a8b6;
+  background: #f1f5f9;
+  cursor: not-allowed;
+}
+
 .nav-subitem {
   color: var(--arek-text-muted);
   font-size: 13px;
@@ -669,6 +712,12 @@ onBeforeUnmount(() => {
 .nav-subitem:hover {
   background: #f3f7fb;
   color: var(--arek-blue-deep);
+}
+
+.nav-group-title:disabled:hover,
+.nav-subitem:disabled:hover {
+  background: #f1f5f9;
+  color: #a0a8b6;
 }
 
 .content {
@@ -766,6 +815,15 @@ h3 {
   background: var(--arek-blue-deep);
   border-color: var(--arek-blue-deep);
   color: #ffffff;
+}
+
+.tab-btn.disabled {
+  border-color: #d8dee8;
+}
+
+.tab-btn.disabled.active {
+  background: #94a3b8;
+  border-color: #94a3b8;
 }
 
 .taxonomy-panel {

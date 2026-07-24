@@ -21,8 +21,10 @@ router.get('/test_ping', (req, res) => {
 });
 
 router.get('/query/summary-filter-options', queryApi.getSummaryFilterOptions);
+router.get('/query/summary-search', queryApi.getSummarySearch);
 router.get('/query/summary-detail-table', queryApi.getSummaryDetailTable);
 router.get('/query/dataset-info/:datasetId', queryApi.getDatasetInfo);
+router.get('/query/result-asset-availability/:datasetId', queryApi.getResultAssetAvailability);
 router.get('/query/result-table-files/:datasetId/:taxLevel', queryApi.getResultTableFiles);
 router.get('/query/result-table-preview/:datasetId/:taxLevel/:fileName', queryApi.getResultTablePreview);
 router.get('/query/result-table-page/:datasetId/:taxLevel/:fileName', queryApi.getResultTablePage);

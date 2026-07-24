@@ -28,106 +28,24 @@
           </div>
         </section>
 
-        <div class="search-panel">
-          <div class="search-grid">
-            <div class="view-title">View by Data</div>
+        <form class="home-search" @submit.prevent="goToFirstSearchResult">
+          <select v-model="homeSearch.sampleType" class="sample-select" aria-label="Sample type">
+            <option value="">All sample types</option>
+            <option v-for="item in sampleTypeOptions" :key="`home-sample-${item}`" :value="item">{{ item }}</option>
+          </select>
 
-            <label class="field">
-              <span class="field-label">{{ filterLabels.studyNr }}</span>
-              <select v-model="filtersData.studyNr" class="field-input">
-                <option value="">All</option>
-                <option v-for="item in studyNrOptions" :key="`nr-${item}`" :value="item">{{ item }}</option>
-              </select>
-            </label>
+          <input
+            v-model="homeSearch.keyword"
+            class="keyword-input"
+            type="search"
+            placeholder="Search AREK datasets"
+            aria-label="Search all summary dataset information"
+          />
 
-            <label class="field">
-              <span class="field-label">{{ filterLabels.subject }}</span>
-              <select v-model="filtersData.subject" class="field-input">
-                <option value="">All</option>
-                <option v-for="item in subjectOptions" :key="`sub-${item}`" :value="item">{{ item }}</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span class="field-label">{{ filterLabels.sampleType }}</span>
-              <select v-model="filtersData.sampleType" class="field-input">
-                <option value="">All</option>
-                <option v-for="item in sampleTypeOptions" :key="`sample-${item}`" :value="item">{{ item }}</option>
-              </select>
-            </label>
-
-            <div class="search-actions">
-              <button type="button" class="go-btn" @click="goToDetail(filtersData)">Search</button>
-              <button type="button" class="clear-btn" @click="clearFilters(filtersData)">Clear</button>
-            </div>
-          </div>
-
-          <div class="search-grid">
-            <div class="view-title">View by Biology</div>
-
-            <label class="field">
-              <span class="field-label">{{ filterLabels.studyNr }}</span>
-              <select v-model="filtersBiology.studyNr" class="field-input">
-                <option value="">All</option>
-                <option v-for="item in studyNrOptions" :key="`nr-${item}`" :value="item">{{ item }}</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span class="field-label">{{ filterLabels.subject }}</span>
-              <select v-model="filtersBiology.subject" class="field-input">
-                <option value="">All</option>
-                <option v-for="item in subjectOptions" :key="`sub-${item}`" :value="item">{{ item }}</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span class="field-label">{{ filterLabels.sampleType }}</span>
-              <select v-model="filtersBiology.sampleType" class="field-input">
-                <option value="">All</option>
-                <option v-for="item in sampleTypeOptions" :key="`sample-${item}`" :value="item">{{ item }}</option>
-              </select>
-            </label>
-
-            <div class="search-actions">
-              <button type="button" class="go-btn" @click="goToDetail(filtersBiology)">Search</button>
-              <button type="button" class="clear-btn" @click="clearFilters(filtersBiology)">Clear</button>
-            </div>
-          </div>
-
-          <div class="search-grid">
-            <div class="view-title">View by Outcome</div>
-
-            <label class="field">
-              <span class="field-label">{{ filterLabels.studyNr }}</span>
-              <select v-model="filtersOutcome.studyNr" class="field-input">
-                <option value="">All</option>
-                <option v-for="item in studyNrOptions" :key="`nr-${item}`" :value="item">{{ item }}</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span class="field-label">{{ filterLabels.subject }}</span>
-              <select v-model="filtersOutcome.subject" class="field-input">
-                <option value="">All</option>
-                <option v-for="item in subjectOptions" :key="`sub-${item}`" :value="item">{{ item }}</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span class="field-label">{{ filterLabels.sampleType }}</span>
-              <select v-model="filtersOutcome.sampleType" class="field-input">
-                <option value="">All</option>
-                <option v-for="item in sampleTypeOptions" :key="`sample-${item}`" :value="item">{{ item }}</option>
-              </select>
-            </label>
-
-            <div class="search-actions">
-              <button type="button" class="go-btn" @click="goToDetail(filtersOutcome)">Search</button>
-              <button type="button" class="clear-btn" @click="clearFilters(filtersOutcome)">Clear</button>
-            </div>
-          </div>
-        </div>
+          <button type="submit" class="home-search-btn" :disabled="searchLoading">
+            Search
+          </button>
+        </form>
 
         <h2 class="section-title">Browse by Modules</h2>
         <div class="module-grid">
@@ -171,8 +89,6 @@
         <div v-if="message" class="message" :class="messageType">
           {{ message }}
         </div>
-
-        <pre v-if="resultText" class="result">{{ resultText }}</pre>
       </section>
     </main>
   </div>
@@ -189,30 +105,11 @@ const router = useRouter();
 const homepageIcon = (fileName) => `${process.env.BASE_URL}homepage-icons/${fileName}`;
 const message = ref('');
 const messageType = ref('info');
-const resultText = ref('');
-const filterLabels = ref({
-  studyNr: 'AREK Study Nr.',
-  subject: 'Study subject',
-  sampleType: 'Sample type'
+const searchLoading = ref(false);
+const homeSearch = ref({
+  sampleType: '',
+  keyword: ''
 });
-const filtersData = ref({
-  studyNr: '',
-  subject: '',
-  sampleType: ''
-});
-const filtersBiology = ref({
-  studyNr: '',
-  subject: '',
-  sampleType: ''
-});
-const filtersOutcome = ref({
-  studyNr: '',
-  subject: '',
-  sampleType: ''
-});
-
-const studyNrOptions = ref([]);
-const subjectOptions = ref([]);
 const sampleTypeOptions = ref([]);
 const heroSteps = [
   { title: 'Microbiome', image: homepageIcon('microbial-culture.png') },
@@ -262,32 +159,21 @@ const moduleCards = [
   }
 ];
 
-const setResult = (type, text, payload) => {
+const setResult = (type, text) => {
   messageType.value = type;
   message.value = text;
-  resultText.value = payload ? JSON.stringify(payload, null, 2) : '';
 };
 
 const loadSummaryFilterOptions = async () => {
   try {
     const resp = await apiRequest.get(API_ENDPOINTS.SUMMARY_FILTER_OPTIONS);
     const data = resp?.data || {};
-    const headers = data.headers || {};
     const options = data.options || {};
-
-    filterLabels.value = {
-      studyNr: headers.studyNr || 'AREK Study Nr.',
-      subject: headers.subject || 'Study subject',
-      sampleType: 'Sample type'
-    };
-    studyNrOptions.value = options.studyNr || [];
-    subjectOptions.value = options.subject || [];
     sampleTypeOptions.value = options.sampleType || [];
   } catch (error) {
     setResult(
       'error',
-      'Failed to load summary filter options',
-      error?.response?.data || { message: error.message }
+      error?.response?.data?.error?.message || error.message || 'Failed to load summary filter options'
     );
   }
 };
@@ -296,23 +182,38 @@ onMounted(() => {
   loadSummaryFilterOptions();
 });
 
-const goToDetail = (targetFilters) => {
-  router.push({
-    name: 'quicksearch',
-    query: {
-      studyNr: targetFilters.studyNr || undefined,
-      subject: targetFilters.subject || undefined,
-      sampleType: targetFilters.sampleType || undefined
-    }
-  });
-};
-
-const clearFilters = (targetFilters) => {
-  targetFilters.studyNr = '';
-  targetFilters.subject = '';
-  targetFilters.sampleType = '';
+const goToFirstSearchResult = async () => {
+  searchLoading.value = true;
   message.value = '';
-  resultText.value = '';
+
+  try {
+    const resp = await apiRequest.get(API_ENDPOINTS.SUMMARY_SEARCH, {
+      sampleType: homeSearch.value.sampleType || undefined,
+      keyword: homeSearch.value.keyword || undefined
+    });
+    const first = resp?.data?.first;
+
+    if (!first?.datasetId) {
+      setResult('error', 'No matching dataset found.');
+      return;
+    }
+
+    router.push({
+      name: 'result',
+      params: {
+        datasetId: first.datasetId
+      },
+      query: {
+        studyNr: first.studyNr || undefined,
+        subject: first.subject || undefined,
+        sampleType: first.sampleType || undefined
+      }
+    });
+  } catch (error) {
+    setResult('error', error?.response?.data?.error?.message || error.message || 'Search failed');
+  } finally {
+    searchLoading.value = false;
+  }
 };
 </script>
 
@@ -436,93 +337,54 @@ const clearFilters = (targetFilters) => {
   line-height: 1;
 }
 
-.search-grid {
-  display: grid;
-  grid-template-columns: 220px 1fr 1fr 1fr auto;
-  gap: 12px;
-  align-items: end;
-}
-
-.search-panel {
+.home-search {
   margin-top: 14px;
   border: 1px solid var(--arek-border);
   border-radius: 10px;
-  background: #f8fafc;
-  padding: 10px 12px;
-}
-
-.search-panel .search-grid {
-  padding: 10px 6px;
-}
-
-.search-panel .search-grid + .search-grid {
-  border-top: 1px solid var(--arek-border);
-}
-
-.view-title {
-  text-align: left;
-  font-size: 20px;
-  line-height: 1;
-  font-weight: 700;
-  color: var(--arek-text-strong);
-  align-self: center;
-}
-
-.field {
+  background: #ffffff;
   display: grid;
-  gap: 6px;
-  text-align: left;
+  grid-template-columns: minmax(180px, 20%) minmax(0, 1fr) auto;
+  overflow: hidden;
 }
 
-.field-label {
-  color: var(--arek-text-muted);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.field-input {
-  width: 100%;
-  border: 1px solid var(--arek-border);
-  background: #fff;
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 14px;
+.sample-select,
+.keyword-input {
+  min-width: 0;
+  border: 0;
+  border-right: 1px solid var(--arek-border);
+  background: #ffffff;
   color: var(--arek-text-strong);
+  font-size: 15px;
+  padding: 15px 16px;
+  outline: none;
 }
 
-.search-actions {
-  display: flex;
-  gap: 10px;
-  align-items: end;
+.keyword-input {
+  width: 100%;
 }
 
-.go-btn {
-  border: 1px solid var(--arek-blue);
+.sample-select:focus,
+.keyword-input:focus {
+  box-shadow: inset 0 0 0 2px var(--arek-blue-soft);
+}
+
+.home-search-btn {
+  border: 0;
   background: var(--arek-blue);
   color: #fff;
-  padding: 10px 20px;
-  border-radius: 8px;
   cursor: pointer;
   font-weight: 700;
-  letter-spacing: 0.4px;
+  padding: 0 24px;
+  white-space: nowrap;
 }
 
-.go-btn:hover {
+.home-search-btn:hover {
   background: var(--arek-blue-deep);
 }
 
-.clear-btn {
-  border: 1px solid var(--arek-border);
-  background: #fff;
-  color: var(--arek-text-body);
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-.clear-btn:hover {
-  background: #f9fafb;
+.home-search-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
 }
 
 .module-grid {
@@ -640,18 +502,6 @@ const clearFilters = (targetFilters) => {
   border: 1px solid #bfdbfe;
 }
 
-.result {
-  margin-top: 12px;
-  text-align: left;
-  background: #0f172a;
-  color: #e2e8f0;
-  border-radius: 10px;
-  padding: 12px;
-  overflow: auto;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
 @media (max-width: 900px) {
   .welcome-panel {
     grid-template-columns: 1fr;
@@ -665,8 +515,18 @@ const clearFilters = (targetFilters) => {
     font-size: 18px;
   }
 
-  .search-grid {
+  .home-search {
     grid-template-columns: 1fr;
+  }
+
+  .sample-select,
+  .keyword-input {
+    border-right: 0;
+    border-bottom: 1px solid var(--arek-border);
+  }
+
+  .home-search-btn {
+    min-height: 48px;
   }
 
   .welcome-right {
@@ -678,14 +538,6 @@ const clearFilters = (targetFilters) => {
     position: static;
     transform: rotate(90deg);
     margin-top: -6px;
-  }
-
-  .view-title {
-    font-size: 28px;
-  }
-
-  .search-actions {
-    justify-content: flex-start;
   }
 
   .module-grid {

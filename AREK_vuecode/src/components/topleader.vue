@@ -37,7 +37,7 @@ const brandLogo = `${process.env.BASE_URL}homepage-icons/AREK.png`;
 
 const items = [
   { label: 'Home', to: { name: 'homepage' } },
-  { label: 'Explore' },
+  { label: 'Explore', to: { name: 'explore' } },
   { label: 'Enterotype Explorer' },
   { label: 'Mechanism' },
   { label: 'Prediction Results' },
