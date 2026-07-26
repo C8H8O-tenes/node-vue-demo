@@ -565,8 +565,7 @@ const getTaxaStatisticPage = async ({
     const rows = await db.queryPromise(
       `SELECT * FROM ${tableName}
        ORDER BY ${orderBy}
-       LIMIT ? OFFSET ?`,
-      [pageSize, offset]
+       LIMIT ${pageSize} OFFSET ${offset}`
     );
 
     const mappedRows = rows.map((row) => ({
