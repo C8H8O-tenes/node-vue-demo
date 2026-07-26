@@ -30,5 +30,7 @@ router.get('/query/result-table-preview/:datasetId/:taxLevel/:fileName', queryAp
 router.get('/query/result-table-page/:datasetId/:taxLevel/:fileName', queryApi.getResultTablePage);
 router.get('/query/result-tables/:datasetId/:taxLevel', queryApi.getResultTables);
 router.get('/query/result-figures/:datasetId/:taxLevel', queryApi.getResultFigures);
+router.get('/query/taxa-correlation-statistics', queryApi.getTaxaCorrelationStatistics);
+router.get('/query/taxa-differential-statistics', queryApi.getTaxaDifferentialStatistics);
 
 module.exports = router;

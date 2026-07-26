@@ -16,7 +16,9 @@ export const API_ENDPOINTS = {
   RESULT_TABLE_PREVIEW: '/query/result-table-preview',
   RESULT_TABLE_PAGE: '/query/result-table-page',
   RESULT_TABLES: '/query/result-tables',
-  RESULT_FIGURES: '/query/result-figures'
+  RESULT_FIGURES: '/query/result-figures',
+  TAXA_CORRELATION_STATISTICS: '/query/taxa-correlation-statistics',
+  TAXA_DIFFERENTIAL_STATISTICS: '/query/taxa-differential-statistics'
 };
 
 export const buildApiUrl = (endpoint, params = {}) => {

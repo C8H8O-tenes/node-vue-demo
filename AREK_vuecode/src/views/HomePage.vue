@@ -55,6 +55,7 @@
             :key="module.title"
             type="button"
             class="module-card"
+            @click="openModule(module)"
           >
             <img class="module-icon" :src="module.image" :alt="module.title" />
             <div class="module-copy">
@@ -141,7 +142,8 @@ const moduleCards = [
   {
     title: 'Taxa',
     description: 'Analyze taxonomic composition and abundance',
-    image: taxaIcon
+    image: taxaIcon,
+    routeName: 'taxa-module'
   },
   {
     title: 'Functions',
@@ -225,6 +227,11 @@ const goToFirstSearchResult = async () => {
   } finally {
     searchLoading.value = false;
   }
+};
+
+const openModule = (module) => {
+  if (!module.routeName) return;
+  router.push({ name: module.routeName });
 };
 </script>
 

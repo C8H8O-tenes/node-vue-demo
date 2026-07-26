@@ -13,6 +13,10 @@ const ASSET_DIRS = {
   figures: 'figures_png'
 };
 const DEFAULT_TABLE_PAGE_SIZE = 10;
+const DEFAULT_TAXA_PAGE_SIZE = 10;
+const MAX_TAXA_PAGE_SIZE = 100;
+const TAXA_CORRELATION_TABLE = `\`${DB_TABLES.ALL_CORRELATION_STATISTIC}\``;
+const TAXA_DIFFERENTIAL_TABLE = `\`${DB_TABLES.ALL_DIFFERENTIAL_STATISTIC}\``;
 
 const getSummaryRows = async () => {
   const rows = await db.queryPromise(`SELECT * FROM ${SUMMARY_TABLE}`);
@@ -504,6 +508,149 @@ const getResultFigures = async (req, res) => {
   }
 };
 
+const safeFilePart = (value) => normalize(value)
+  .replace(/:/g, '_')
+  .replace(/[^A-Za-z0-9._-]+/g, '_')
+  .replace(/_+/g, '_')
+  .replace(/^_+|_+$/g, '');
+
+const buildCorrelationFigure = (row) => {
+  const dataset = safeFilePart(row.dataset);
+  const taxLevel = safeFilePart(row.tax_level);
+  const variable = safeFilePart(row.variable);
+
+  if (!dataset || !taxLevel || !variable) return null;
+
+  const fileName = `STEP04_CORRELATION_${dataset}_${taxLevel}_${variable}_COEFFICIENT_PLOT.png`;
+  return {
+    fileName,
+    publicPath: `${dataset}/${taxLevel}/figures_png/${fileName}`
+  };
+};
+
+const buildDifferentialFigure = (row) => {
+  const dataset = safeFilePart(row.dataset);
+  const taxLevel = safeFilePart(row.tax_level);
+  const groupVariable = safeFilePart(row.group_variable);
+  const contrast = safeFilePart(row.contrast);
+  const taxon = safeFilePart(row.taxon);
+
+  if (!dataset || !taxLevel || !groupVariable || !contrast || !taxon) return null;
+
+  const fileName = `STEP02_DIFFERENTIAL_${dataset}_${taxLevel}_${groupVariable}_${contrast}_BOXPLOT_${taxon}.png`;
+  return {
+    fileName,
+    publicPath: `${dataset}/${taxLevel}/figures_png/${fileName}`
+  };
+};
+
+const getTaxaStatisticPage = async ({
+  req,
+  res,
+  tableName,
+  fallbackHeaders,
+  sourceName,
+  orderBy,
+  buildFigure,
+  successMessage,
+  errorCode
+}) => {
+  const page = Math.max(Number(req.query.page) || 1, 1);
+  const pageSize = Math.min(Math.max(Number(req.query.pageSize) || DEFAULT_TAXA_PAGE_SIZE, 1), MAX_TAXA_PAGE_SIZE);
+  const offset = (page - 1) * pageSize;
+
+  try {
+    const countRows = await db.queryPromise(`SELECT COUNT(*) AS total FROM ${tableName}`);
+    const total = Number(countRows?.[0]?.total) || 0;
+    const rows = await db.queryPromise(
+      `SELECT * FROM ${tableName}
+       ORDER BY ${orderBy}
+       LIMIT ? OFFSET ?`,
+      [pageSize, offset]
+    );
+
+    const mappedRows = rows.map((row) => ({
+      ...row,
+      figure: buildFigure(row)
+    }));
+
+    return UTILS.sendSuccess(res, {
+      headers: rows.length ? Object.keys(rows[0]) : fallbackHeaders,
+      rows: mappedRows,
+      page,
+      pageSize,
+      total,
+      totalPages: Math.max(Math.ceil(total / pageSize), 1),
+      source: sourceName
+    }, successMessage);
+  } catch (error) {
+    return UTILS.sendError(res, error.message, HTTP_STATUS.INTERNAL_SERVER_ERROR, errorCode);
+  }
+};
+
+const getTaxaCorrelationStatistics = async (req, res) => getTaxaStatisticPage({
+  req,
+  res,
+  tableName: TAXA_CORRELATION_TABLE,
+  fallbackHeaders: [
+    'dataset',
+    'tax_level',
+    'analysis_role',
+    'variable',
+    'variable_display',
+    'taxon',
+    'rho',
+    'p_value',
+    'n_samples',
+    'FDR_p_value',
+    'direction',
+    'raw_p_significance',
+    'FDR_p_significance',
+    'source_file'
+  ],
+  sourceName: DB_TABLES.ALL_CORRELATION_STATISTIC,
+  orderBy: 'dataset, tax_level, variable, taxon',
+  buildFigure: buildCorrelationFigure,
+  successMessage: 'Taxa correlation statistics loaded',
+  errorCode: 'TAXA_CORRELATION_STATISTICS_ERROR'
+});
+
+const getTaxaDifferentialStatistics = async (req, res) => getTaxaStatisticPage({
+  req,
+  res,
+  tableName: TAXA_DIFFERENTIAL_TABLE,
+  fallbackHeaders: [
+    'source_file',
+    'dataset',
+    'tax_level',
+    'group_variable',
+    'contrast',
+    'group_a',
+    'group_b',
+    'taxon',
+    'n_a',
+    'n_b',
+    'mean_relative_abundance_a',
+    'mean_relative_abundance_b',
+    'median_clr_a',
+    'median_clr_b',
+    'effect_size_clr_median_difference',
+    'rank_biserial',
+    'log2_fold_change',
+    'statistic',
+    'p_value',
+    'direction',
+    'FDR_p_value',
+    'raw_p_significance',
+    'FDR_p_significance'
+  ],
+  sourceName: DB_TABLES.ALL_DIFFERENTIAL_STATISTIC,
+  orderBy: 'dataset, tax_level, group_variable, contrast, taxon',
+  buildFigure: buildDifferentialFigure,
+  successMessage: 'Taxa differential statistics loaded',
+  errorCode: 'TAXA_DIFFERENTIAL_STATISTICS_ERROR'
+});
+
 module.exports = {
   getSummaryFilterOptions,
   getSummarySearch,
@@ -514,5 +661,7 @@ module.exports = {
   getResultTableFiles,
   getResultTablePreview,
   getResultTablePage,
-  getResultFigures
+  getResultFigures,
+  getTaxaCorrelationStatistics,
+  getTaxaDifferentialStatistics
 };

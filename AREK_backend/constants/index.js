@@ -58,6 +58,8 @@ const MESSAGES = {
 // Keep table names aligned with RMzyme by default to minimize code changes later.
 const DB_TABLES = {
   SUMMARY_DATASET_INFOR: 'summary_dataset_infor',
+  ALL_CORRELATION_STATISTIC: 'all_correlation_statistic',
+  ALL_DIFFERENTIAL_STATISTIC: 'all_differential_statistic',
   RMP_SC_MYSQL: 'rmp_sc_mysql',
   RMP_BULK_MYSQL: 'rmp_bulk_mysql',
   RMP_TARGET_MYSQL: 'rmp_target_mysql',

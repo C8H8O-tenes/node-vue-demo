@@ -4,6 +4,7 @@ import ExplorePage from '@/views/Explore.vue';
 import QuickSearchPage from '@/views/quicksearch.vue';
 import ResultPage from '@/views/result.vue';
 import ContactPage from '@/views/contact.vue';
+import TaxaModulePage from '@/views/Taxa_module.vue';
 
 const routes = [
   {
@@ -35,6 +36,11 @@ const routes = [
     path: '/contact',
     name: 'contact',
     component: ContactPage
+  },
+  {
+    path: '/taxa-module',
+    name: 'taxa-module',
+    component: TaxaModulePage
   }
 ];
 

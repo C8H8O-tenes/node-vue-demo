@@ -79,17 +79,19 @@
             :ref="(el) => setSectionElement(section.id, el)"
             class="result-section analysis-section"
           >
-            <div class="section-head">
+            <div v-if="!['QC', 'DIVERSITY', 'DIFFERENTIAL', 'regression', 'ASSOCIATION'].includes(section.id)" class="section-head">
               <h2>{{ sectionTitle(section) }}</h2>
               <span class="source">{{ activeTaxLevel }}</span>
             </div>
 
             <template v-if="section.asset">
               <div v-if="section.id === 'DIFFERENTIAL'" class="figure-block differential-block">
-                <div class="qc-summary differential-summary">
-                  <h3>Differentially Abundant Microbial Taxa</h3>
+                <div class="qc-title-bar analysis-title-bar">
+                  <h2>Differentially Abundant Microbial Taxa</h2>
+                </div>
+                <div class="analysis-description">
                   <p>Identify microbial taxa with significantly different abundances between alcohol-consumption groups.</p>
-                  <p>Threshold: p&lt;0.05</p>
+                  <p>Threshold: p&lt;0.05.</p>
                 </div>
 
                 <div v-if="differentialTables(section).length" class="table-stack">
@@ -158,8 +160,10 @@
               </div>
 
               <div v-else-if="section.id === 'regression'" class="figure-block regression-block">
-                <div class="qc-summary regression-summary">
-                  <h3>Microbial Taxa Associated with Alcohol-Related Variables</h3>
+                <div class="qc-title-bar analysis-title-bar">
+                  <h2>Microbial Taxa Associated with Alcohol-Related Variables</h2>
+                </div>
+                <div class="analysis-description">
                   <p>Identify microbial taxa associated with alcohol-related variables using regression models.</p>
                   <p>Model: Taxon abundance ~ Alcohol-related variable + Covariates</p>
                 </div>
@@ -236,7 +240,185 @@
                 <div v-else-if="section.asset.figuresLoaded" class="state">No regression coefficient plots found.</div>
               </div>
 
-              <div v-else-if="section.asset.tables.length" class="table-stack">
+              <div v-else-if="section.id === 'ASSOCIATION'" class="figure-block association-block">
+                <div class="qc-title-bar analysis-title-bar">
+                  <h2>Microbial Taxa Associated with clinical and demographic information</h2>
+                </div>
+                <div class="analysis-description">
+                  <p>Identify taxa associated with clinical and demographic variables using multivariable regression and Spearman correlation.</p>
+                  <p>Model: Taxon abundance ~ Variable of interest + All other covariates</p>
+                  <p>Spearman threshold: p&lt;0.05</p>
+                </div>
+
+                <div class="analysis-subtabs" role="tablist" aria-label="Association analysis tabs">
+                  <button
+                    type="button"
+                    class="analysis-subtab-btn"
+                    :class="{ active: associationActiveTab === 'Regression' }"
+                    @click="associationActiveTab = 'Regression'"
+                  >
+                    Regression
+                  </button>
+                  <button
+                    type="button"
+                    class="analysis-subtab-btn"
+                    :class="{ active: associationActiveTab === 'Correlation' }"
+                    @click="associationActiveTab = 'Correlation'"
+                  >
+                    Correlation
+                  </button>
+                </div>
+
+                <div v-if="associationActiveTab === 'Regression'" class="association-tab-panel">
+                  <div v-if="associationRegressionTables(section).length" class="table-stack">
+                    <article
+                      v-for="table in associationRegressionTables(section)"
+                      :key="table.fileName"
+                      class="data-table-card"
+                    >
+                      <h3>{{ table.fileName }}</h3>
+                      <div class="table-wrap">
+                        <table class="data-table">
+                          <thead>
+                            <tr>
+                              <th v-for="header in table.headers" :key="header">{{ header || '(blank)' }}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-if="!table.rows.length">
+                              <td :colspan="Math.max(table.headers.length, 1)">No rows in this table.</td>
+                            </tr>
+                            <tr v-for="(row, rowIndex) in table.rows" :key="rowIndex">
+                              <td v-for="header in table.headers" :key="`${rowIndex}-${header}`">
+                                {{ cellValue(row, header, table.headers[0]) }}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div v-if="table.page > 1 || table.hasMore || table.pageLoading" class="pager">
+                        <button
+                          type="button"
+                          class="pager-btn"
+                          :disabled="table.page <= 1 || table.pageLoading"
+                          @click="loadTablePage(section.id, table, table.page - 1)"
+                        >
+                          Prev
+                        </button>
+                        <span class="pager-text">
+                          Page {{ table.page }}
+                        </span>
+                        <button
+                          type="button"
+                          class="pager-btn"
+                          :disabled="!table.hasMore || table.pageLoading"
+                          @click="loadTablePage(section.id, table, table.page + 1)"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </article>
+                  </div>
+                  <div v-else-if="section.asset.tablesError" class="state error">{{ section.asset.tablesError }}</div>
+                  <div v-else-if="section.asset.tablesLoaded" class="state">No association regression tables found for {{ activeTaxLevel }}.</div>
+
+                  <div v-if="associationRegressionFigures(section).length" class="figure-stack association-figure-grid">
+                    <figure
+                      v-for="figure in associationRegressionFigures(section)"
+                      :key="figure.fileName"
+                      class="figure-card association-figure-card"
+                    >
+                      <button
+                        type="button"
+                        class="figure-button"
+                        @click="toggleFigure(figure)"
+                      >
+                        <img :src="imageSrc(figure)" :alt="figure.fileName" />
+                      </button>
+                      <figcaption>{{ figure.fileName }}</figcaption>
+                    </figure>
+                  </div>
+                  <div v-else-if="section.asset.figuresError" class="state error">{{ section.asset.figuresError }}</div>
+                  <div v-else-if="section.asset.figuresLoaded" class="state">No association regression coefficient plots found.</div>
+                </div>
+
+                <div v-else class="association-tab-panel">
+                  <h3 class="association-subtitle">Spearman correlation.</h3>
+
+                  <div v-if="associationCorrelationTables(section).length" class="table-stack">
+                    <article
+                      v-for="table in associationCorrelationTables(section)"
+                      :key="table.fileName"
+                      class="data-table-card"
+                    >
+                      <h3>{{ table.fileName }}</h3>
+                      <div class="table-wrap">
+                        <table class="data-table">
+                          <thead>
+                            <tr>
+                              <th v-for="header in table.headers" :key="header">{{ header || '(blank)' }}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-if="!table.rows.length">
+                              <td :colspan="Math.max(table.headers.length, 1)">No rows in this table.</td>
+                            </tr>
+                            <tr v-for="(row, rowIndex) in table.rows" :key="rowIndex">
+                              <td v-for="header in table.headers" :key="`${rowIndex}-${header}`">
+                                {{ cellValue(row, header, table.headers[0]) }}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div v-if="table.page > 1 || table.hasMore || table.pageLoading" class="pager">
+                        <button
+                          type="button"
+                          class="pager-btn"
+                          :disabled="table.page <= 1 || table.pageLoading"
+                          @click="loadTablePage(section.id, table, table.page - 1)"
+                        >
+                          Prev
+                        </button>
+                        <span class="pager-text">
+                          Page {{ table.page }}
+                        </span>
+                        <button
+                          type="button"
+                          class="pager-btn"
+                          :disabled="!table.hasMore || table.pageLoading"
+                          @click="loadTablePage(section.id, table, table.page + 1)"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </article>
+                  </div>
+                  <div v-else-if="section.asset.tablesError" class="state error">{{ section.asset.tablesError }}</div>
+                  <div v-else-if="section.asset.tablesLoaded" class="state">No association correlation tables found for {{ activeTaxLevel }}.</div>
+
+                  <div v-if="associationCorrelationFigures(section).length" class="figure-stack association-figure-grid">
+                    <figure
+                      v-for="figure in associationCorrelationFigures(section)"
+                      :key="figure.fileName"
+                      class="figure-card association-figure-card"
+                    >
+                      <button
+                        type="button"
+                        class="figure-button"
+                        @click="toggleFigure(figure)"
+                      >
+                        <img :src="imageSrc(figure)" :alt="figure.fileName" />
+                      </button>
+                      <figcaption>{{ figure.fileName }}</figcaption>
+                    </figure>
+                  </div>
+                  <div v-else-if="section.asset.figuresError" class="state error">{{ section.asset.figuresError }}</div>
+                  <div v-else-if="section.asset.figuresLoaded" class="state">No association correlation heatmaps found.</div>
+                </div>
+              </div>
+
+              <div v-else-if="!['QC', 'DIVERSITY'].includes(section.id) && section.asset.tables.length" class="table-stack">
                 <article
                   v-for="table in section.asset.tables"
                   :key="table.fileName"
@@ -285,13 +467,14 @@
                   </div>
                 </article>
               </div>
-              <div v-else-if="section.asset.tablesError" class="state error">{{ section.asset.tablesError }}</div>
-              <div v-else-if="section.asset.tablesLoaded" class="state">No {{ section.label }} tables found for {{ activeTaxLevel }}.</div>
+              <div v-else-if="!['QC', 'DIVERSITY'].includes(section.id) && section.asset.tablesError" class="state error">{{ section.asset.tablesError }}</div>
+              <div v-else-if="!['QC', 'DIVERSITY'].includes(section.id) && section.asset.tablesLoaded" class="state">No {{ section.label }} tables found for {{ activeTaxLevel }}.</div>
 
               <div v-if="section.id === 'QC'" class="figure-block qc-block">
-                <div class="qc-summary">
-                  <p>Thresholds: &ge;6 samples per dataset; &ge;3 samples per group; taxon prevalence &ge;10%; mean relative abundance &ge;0.01%.</p>
+                <div class="qc-title-bar">
+                  <h2>Pre-processing: quality control</h2>
                 </div>
+                <p class="qc-description">Thresholds: &ge;6 samples per dataset; &ge;3 samples per group; taxon prevalence &ge;10%; mean relative abundance &ge;0.01%.</p>
 
                 <div v-if="qcDistributionFigures(section).length" class="figure-stack qc-figure-stack">
                   <figure
@@ -329,15 +512,70 @@
               </div>
 
               <div v-else-if="section.id === 'DIVERSITY'" class="figure-block diversity-block">
+                <div class="qc-title-bar diversity-title-bar">
+                  <h2>Diversity</h2>
+                </div>
+
                 <article
                   v-for="group in diversityFigureGroups(section)"
                   :key="group.id"
                   class="diversity-group"
                 >
-                  <div class="qc-summary diversity-summary">
+                  <div class="diversity-summary">
                     <h3>{{ group.title }}</h3>
                     <p v-for="line in group.description" :key="line">{{ line }}</p>
                   </div>
+
+                  <div v-if="group.id === 'alpha' && diversityAlphaTables(section).length" class="table-stack">
+                    <article
+                      v-for="table in diversityAlphaTables(section)"
+                      :key="table.fileName"
+                      class="data-table-card"
+                    >
+                      <h3>{{ table.fileName }}</h3>
+                      <div class="table-wrap">
+                        <table class="data-table">
+                          <thead>
+                            <tr>
+                              <th v-for="header in table.headers" :key="header">{{ header || '(blank)' }}</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr v-if="!table.rows.length">
+                              <td :colspan="Math.max(table.headers.length, 1)">No rows in this table.</td>
+                            </tr>
+                            <tr v-for="(row, rowIndex) in table.rows" :key="rowIndex">
+                              <td v-for="header in table.headers" :key="`${rowIndex}-${header}`">
+                                {{ cellValue(row, header, table.headers[0]) }}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div v-if="table.page > 1 || table.hasMore || table.pageLoading" class="pager">
+                        <button
+                          type="button"
+                          class="pager-btn"
+                          :disabled="table.page <= 1 || table.pageLoading"
+                          @click="loadTablePage(section.id, table, table.page - 1)"
+                        >
+                          Prev
+                        </button>
+                        <span class="pager-text">
+                          Page {{ table.page }}
+                        </span>
+                        <button
+                          type="button"
+                          class="pager-btn"
+                          :disabled="!table.hasMore || table.pageLoading"
+                          @click="loadTablePage(section.id, table, table.page + 1)"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </article>
+                  </div>
+                  <div v-else-if="group.id === 'alpha' && section.asset.tablesError" class="state error">{{ section.asset.tablesError }}</div>
 
                   <div v-if="group.figures.length" class="figure-stack" :class="group.gridClass">
                     <figure
@@ -361,7 +599,7 @@
                 <div v-if="section.asset.figuresError" class="state error">{{ section.asset.figuresError }}</div>
               </div>
 
-              <div v-else-if="section.id !== 'DIFFERENTIAL'" class="figure-block">
+              <div v-else-if="isGenericFigureSection(section)" class="figure-block">
                 <h3>{{ section.label }} figures</h3>
                 <div v-if="section.asset.figures.length" class="figure-stack">
                   <figure
@@ -427,6 +665,7 @@ const activeTaxLevel = ref('Phylum');
 const taxLevelAvailability = ref({});
 const sectionAssets = ref({});
 const lightboxFigure = ref(null);
+const associationActiveTab = ref('Regression');
 const activeAssetRequestId = ref(0);
 const loadedSectionIds = ref({});
 const sectionElements = new Map();
@@ -443,12 +682,11 @@ const datasetInfoFields = [
   'Sequencing method'
 ];
 const analysisSections = [
-  { id: 'QC', label: 'QC', keyword: 'QC' },
-  { id: 'DIVERSITY', label: 'DIVERSITY', keyword: 'DIVERSITY' },
-  { id: 'DIFFERENTIAL', label: 'DIFFERENTIAL', keyword: 'DIFFERENTIAL' },
-  { id: 'regression', label: 'regression', keyword: 'ALCOHOL_REGRESSION' },
-  { id: 'ASSOCIATION', label: 'ASSOCIATION', keyword: 'OTHER_METADATA_ASSOCIATION' },
-  { id: 'CORRELATION', label: 'CORRELATION', keyword: 'CORRELATION' }
+  { id: 'QC', label: 'Pre-processing: quality control', keyword: 'QC' },
+  { id: 'DIVERSITY', label: 'Diversity', keyword: 'DIVERSITY' },
+  { id: 'DIFFERENTIAL', label: 'Differentially Abundant Microbial Taxa', keyword: 'DIFFERENTIAL' },
+  { id: 'regression', label: 'Microbial Taxa Associated with Alcohol-Related Variables', keyword: 'ALCOHOL_REGRESSION' },
+  { id: 'ASSOCIATION', label: 'Microbial Taxa Associated with clinical and demographic information', keyword: 'OTHER_METADATA_ASSOCIATION', keywords: ['OTHER_METADATA_ASSOCIATION', 'CORRELATION'] }
 ];
 const qcFigureDefinitions = [
   {
@@ -660,9 +898,18 @@ const sectionTitle = (section) => (
   {
     QC: 'Pre-processing: quality control',
     DIFFERENTIAL: 'Differentially Abundant Microbial Taxa',
-    regression: 'Microbial Taxa Associated with Alcohol-Related Variables'
+    regression: 'Microbial Taxa Associated with Alcohol-Related Variables',
+    ASSOCIATION: 'Microbial Taxa Associated with clinical and demographic information'
   }[section.id] || section.label
 );
+
+const isGenericFigureSection = (section) => ![
+  'QC',
+  'DIVERSITY',
+  'DIFFERENTIAL',
+  'regression',
+  'ASSOCIATION'
+].includes(section?.id);
 
 const qcDistributionFigures = (section) => {
   const figures = section?.asset?.figures || [];
@@ -698,6 +945,17 @@ const diversityFigureGroups = (section) => {
       .filter(Boolean)
   }));
 };
+
+const isDiversityAlphaSignificantFileName = (fileName) => {
+  const lower = lowerText(fileName);
+  return lower.includes('diversity_alpha') && lower.includes('_significant_p005.tsv');
+};
+
+const diversityAlphaTables = (section) => (
+  (section?.asset?.tables || [])
+    .filter((table) => isDiversityAlphaSignificantFileName(table.fileName))
+    .sort((a, b) => a.fileName.localeCompare(b.fileName))
+);
 
 const isDifferentialSignificantFileName = (fileName) => lowerText(fileName).endsWith('significant_raw_p005.tsv');
 const isDifferentialAllTaxaFileName = (fileName) => lowerText(fileName).endsWith('_all_taxa.tsv');
@@ -770,6 +1028,87 @@ const regressionFigures = (section) => (
     })
     .sort((a, b) => a.fileName.localeCompare(b.fileName))
 );
+
+const isAssociationRegressionTableFileName = (fileName) => {
+  const lower = lowerText(fileName);
+  return lower.includes('other_metadata_association')
+    && lower.endsWith('all_variables__significance_tiers_raw_or_fdr_p_lt_0.05.tsv');
+};
+
+const associationRegressionTables = (section) => (
+  (section?.asset?.tables || [])
+    .filter((table) => isAssociationRegressionTableFileName(table.fileName))
+    .sort((a, b) => a.fileName.localeCompare(b.fileName))
+);
+
+const associationRegressionFigures = (section) => (
+  (section?.asset?.figures || [])
+    .filter((figure) => {
+      const fileName = lowerFigureName(figure);
+      return fileName.endsWith('_coefficient_plot.png')
+        && (
+          fileName.includes('regression')
+          || fileName.includes('other_metadata_association')
+        );
+    })
+    .sort((a, b) => a.fileName.localeCompare(b.fileName))
+);
+
+const isAssociationCorrelationTableFileName = (fileName) => {
+  const lower = lowerText(fileName);
+  return lower.includes('correlation__')
+    && lower.endsWith('__significance_tiers_raw_or_fdr_p_lt_0.05.tsv');
+};
+
+const associationCorrelationTables = (section) => (
+  (section?.asset?.tables || [])
+    .filter((table) => isAssociationCorrelationTableFileName(table.fileName))
+    .sort((a, b) => a.fileName.localeCompare(b.fileName))
+);
+
+const associationCorrelationFigures = (section) => (
+  (section?.asset?.figures || [])
+    .filter((figure) => {
+      const fileName = lowerFigureName(figure);
+      return fileName.includes('correlation') && fileName.endsWith('_all_variables_heatmap.png');
+    })
+    .sort((a, b) => a.fileName.localeCompare(b.fileName))
+);
+
+const uniqueAssetItems = (items) => {
+  const seen = new Set();
+  return items.filter((item) => {
+    const key = item.fileName || item.publicPath;
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+};
+
+const sectionKeywords = (section) => section.keywords || [section.keyword];
+
+const tableFilesForSection = (section, files) => {
+  if (section.id === 'DIFFERENTIAL') {
+    return files.filter((file) => isDifferentialRelevantFileName(file.fileName));
+  }
+
+  if (section.id === 'regression') {
+    return files.filter((file) => isRegressionSignificantFileName(file.fileName));
+  }
+
+  if (section.id === 'DIVERSITY') {
+    return files.filter((file) => isDiversityAlphaSignificantFileName(file.fileName));
+  }
+
+  if (section.id === 'ASSOCIATION') {
+    return files.filter((file) => (
+      isAssociationRegressionTableFileName(file.fileName)
+      || isAssociationCorrelationTableFileName(file.fileName)
+    ));
+  }
+
+  return files;
+};
 
 const loadDatasetInfo = async () => {
   if (!datasetId.value) {
@@ -893,85 +1232,88 @@ const loadSectionAssets = async (sectionIdValue, taxLevel = activeTaxLevel.value
   };
 
   const commonPath = `${encodePathPart(datasetId.value)}/${encodePathPart(taxLevel)}`;
-  updateSectionState(section.id, { tablesLoading: true, figuresLoading: true }, requestId);
+  const keywords = sectionKeywords(section);
+  updateSectionState(section.id, { tablesLoading: section.id !== 'QC', figuresLoading: true }, requestId);
 
-  const loadTableFiles = fetchJson(
-    `${API_ENDPOINTS.RESULT_TABLE_FILES}/${commonPath}`,
-    { keyword: section.keyword }
-  )
-    .then(async (resp) => {
-      const allFiles = resp?.data?.files || [];
-      const files = section.id === 'DIFFERENTIAL'
-        ? allFiles.filter((file) => isDifferentialRelevantFileName(file.fileName))
-        : section.id === 'regression'
-          ? allFiles.filter((file) => isRegressionSignificantFileName(file.fileName))
-        : allFiles;
-      if (DEBUG_RESULT_ASSETS) {
-        console.log('[result table files]', {
-          requestId,
-          taxLevel,
-          section: section.id,
-          keyword: section.keyword,
-          count: files.length,
-          files
-        });
-      }
+  const loadTableFiles = section.id === 'QC'
+    ? Promise.resolve(updateSectionState(section.id, { tablesLoaded: true, tablesLoading: false }, requestId))
+    : Promise.all(
+      keywords.map((keyword) => fetchJson(
+        `${API_ENDPOINTS.RESULT_TABLE_FILES}/${commonPath}`,
+        { keyword }
+      ))
+    )
+      .then(async (responses) => {
+        const allFiles = uniqueAssetItems(responses.flatMap((resp) => resp?.data?.files || []));
+        const files = tableFilesForSection(section, allFiles);
+        if (DEBUG_RESULT_ASSETS) {
+          console.log('[result table files]', {
+            requestId,
+            taxLevel,
+            section: section.id,
+            keywords,
+            count: files.length,
+            files
+          });
+        }
 
-      if (!files.length) {
+        if (!files.length) {
+          updateSectionState(section.id, { tablesLoaded: true, tablesLoading: false }, requestId);
+          return;
+        }
+
+        updateSectionState(section.id, {
+          tables: files.map((file) => ({
+            fileName: file.fileName,
+            headers: [],
+            rows: [],
+            page: 1,
+            pageSize,
+            hasMore: false,
+            pageLoading: true,
+            pageError: ''
+          })),
+          tableFilesLoaded: true
+        }, requestId);
+
+        for (const file of files) {
+          if (activeAssetRequestId.value !== requestId) return;
+          await loadTablePage(section.id, { fileName: file.fileName }, 1);
+        }
+
         updateSectionState(section.id, { tablesLoaded: true, tablesLoading: false }, requestId);
-        return;
-      }
+      })
+      .catch((err) => {
+        if (DEBUG_RESULT_ASSETS) {
+          console.error('[result table files] error', {
+            requestId,
+            taxLevel,
+            section: section.id,
+            keywords,
+            error: err
+          });
+        }
+        updateSectionState(section.id, {
+          tablesError: err?.response?.data?.error?.message || err.message || `Failed to load ${section.label} tables`,
+          tablesLoaded: true,
+          tablesLoading: false
+        }, requestId);
+      });
 
-      updateSectionState(section.id, {
-        tables: files.map((file) => ({
-          fileName: file.fileName,
-          headers: [],
-          rows: [],
-          page: 1,
-          pageSize,
-          hasMore: false,
-          pageLoading: true,
-          pageError: ''
-        })),
-        tableFilesLoaded: true
-      }, requestId);
-
-      for (const file of files) {
-        if (activeAssetRequestId.value !== requestId) return;
-        await loadTablePage(section.id, { fileName: file.fileName }, 1);
-      }
-
-      updateSectionState(section.id, { tablesLoaded: true, tablesLoading: false }, requestId);
-    })
-    .catch((err) => {
-      if (DEBUG_RESULT_ASSETS) {
-        console.error('[result table files] error', {
-          requestId,
-          taxLevel,
-          section: section.id,
-          keyword: section.keyword,
-          error: err
-        });
-      }
-      updateSectionState(section.id, {
-        tablesError: err?.response?.data?.error?.message || err.message || `Failed to load ${section.label} tables`,
-        tablesLoaded: true,
-        tablesLoading: false
-      }, requestId);
-    });
-
-  const loadFigures = fetchJson(
-    `${API_ENDPOINTS.RESULT_FIGURES}/${commonPath}`,
-    { keyword: section.keyword }
+  const loadFigures = Promise.all(
+    keywords.map((keyword) => fetchJson(
+      `${API_ENDPOINTS.RESULT_FIGURES}/${commonPath}`,
+      { keyword }
+    ))
   )
-    .then((resp) => {
-      const figures = resp?.data?.figures || [];
+    .then((responses) => {
+      const figures = uniqueAssetItems(responses.flatMap((resp) => resp?.data?.figures || []));
       if (DEBUG_RESULT_ASSETS) {
         console.log('[result figures]', {
           requestId,
           taxLevel,
           section: section.id,
-          keyword: section.keyword,
+          keywords,
           count: figures.length,
           figures
         });
@@ -984,7 +1326,7 @@ const loadSectionAssets = async (sectionIdValue, taxLevel = activeTaxLevel.value
           requestId,
           taxLevel,
           section: section.id,
-          keyword: section.keyword,
+          keywords,
           error: err
         });
       }
@@ -1172,6 +1514,8 @@ onBeforeUnmount(() => {
   color: var(--arek-text-muted);
   font-size: 13px;
   font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
   padding: 7px 10px 7px 22px;
 }
 
@@ -1399,7 +1743,6 @@ h3 {
   border-right: 1px solid #eef2f7;
   padding: 8px 10px;
   color: #1f2937;
-  font-size: 13px;
   line-height: 1.35;
   text-align: left;
   vertical-align: top;
@@ -1409,7 +1752,12 @@ h3 {
 .data-table th {
   background: #f8fafc;
   color: var(--arek-text-strong);
+  font-size: 16px;
   font-weight: 800;
+}
+
+.data-table td {
+  font-size: 14px;
 }
 
 .data-table th:last-child,
@@ -1472,6 +1820,45 @@ h3 {
   gap: 18px;
 }
 
+.qc-title-bar {
+  background: #67679d;
+  border-radius: 2px;
+  color: #ffffff;
+  padding: 12px 14px;
+}
+
+.qc-title-bar h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+.qc-description {
+  margin: 0;
+  color: var(--arek-text-strong);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.analysis-title-bar {
+  margin-bottom: 2px;
+}
+
+.analysis-description {
+  display: grid;
+  gap: 4px;
+}
+
+.analysis-description p {
+  margin: 0;
+  color: var(--arek-text-strong);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .qc-summary {
   background: #67679d;
   color: #ffffff;
@@ -1507,6 +1894,10 @@ h3 {
   gap: 24px;
 }
 
+.diversity-title-bar {
+  margin-bottom: 2px;
+}
+
 .diversity-group {
   display: grid;
   gap: 14px;
@@ -1519,13 +1910,17 @@ h3 {
 
 .diversity-summary h3 {
   margin: 0;
-  color: #ffffff;
+  color: var(--arek-text-strong);
   font-size: 18px;
   line-height: 1.25;
 }
 
 .diversity-summary p {
+  margin: 0;
+  color: var(--arek-text-strong);
   font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
 }
 
 .diversity-grid-2 {
@@ -1536,7 +1931,8 @@ h3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.regression-figure-grid {
+.regression-figure-grid,
+.association-figure-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
 }
@@ -1554,14 +1950,14 @@ h3 {
   border-radius: 8px;
   background: #ffffff;
   cursor: zoom-in;
-  padding: 14px;
+  padding: 0;
+  overflow: hidden;
 }
 
 .figure-button img {
   display: block;
-  width: 50%;
+  width: 100%;
   height: auto;
-  margin: 0 auto;
 }
 
 figcaption {
@@ -1586,18 +1982,21 @@ figcaption {
 }
 
 .differential-block,
-.regression-block {
+.regression-block,
+.association-block {
   gap: 18px;
 }
 
 .differential-summary,
-.regression-summary {
+.regression-summary,
+.association-summary {
   display: grid;
   gap: 4px;
 }
 
 .differential-summary h3,
-.regression-summary h3 {
+.regression-summary h3,
+.association-summary h3 {
   margin: 0;
   color: #ffffff;
   font-size: 18px;
@@ -1605,11 +2004,51 @@ figcaption {
 }
 
 .differential-summary p,
-.regression-summary p {
+.regression-summary p,
+.association-summary p {
   font-size: 15px;
 }
 
-.regression-figure-card figcaption {
+.analysis-subtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid var(--arek-border);
+}
+
+.analysis-subtab-btn {
+  border: 1px solid var(--arek-border);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: #ffffff;
+  color: var(--arek-text-body);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 10px 20px;
+}
+
+.analysis-subtab-btn.active {
+  background: var(--arek-blue-deep);
+  border-color: var(--arek-blue-deep);
+  color: #ffffff;
+}
+
+.association-tab-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.association-subtitle {
+  margin: 0;
+  color: var(--arek-text-strong);
+  font-size: 18px;
+  line-height: 1.35;
+}
+
+.regression-figure-card figcaption,
+.association-figure-card figcaption {
   color: var(--arek-text-strong);
   font-size: 13px;
   line-height: 1.4;
@@ -1672,7 +2111,8 @@ figcaption {
 
   .diversity-grid-2,
   .diversity-grid-3,
-  .regression-figure-grid {
+  .regression-figure-grid,
+  .association-figure-grid {
     grid-template-columns: 1fr;
   }
 }
